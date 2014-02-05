@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>ファイルの読み込み</title>
+    <script type="text/javascript" src="js/GIFileLoader.js"></script>
+    <script type="text/javascript" src="js/CulcPlane.js"></script>
+    <link rel="stylesheet" href="css/main.css" type="text/css" />
+  </head>
+  <body onload="culcCutPlane()">
+    <!-- <div id="header">
+     !--   <h1>File Read Sample</h1>
+     !-- </div> -->
+    <article>
+      <p>ファイルAPIのサンプル</p>
+      <textarea name="" id="msg" rows="7" cols="30" tabindex=""></textarea>
+      <hr />
+      <input type="file" accept="application/sla" maxlength="1" onchange="dochange(event);" />
+      <br />
+      <div class="normalVector">
+	<p>平面が含む点</p>
+	<div id="">
+	  (
+	  <input type="text" id="x0" value="0" onChange="culcCutPlane()" />,
+	  <input type="text" id="y0" value="0" onChange="culcCutPlane()" />,
+	  <input type="text" id="z0" value="0" onChange="culcCutPlane()" />
+	  )
+	</div>
+	<p>切断面の法線ベクトル</p>
+	<div>(x, y, z) = (<input type="text" id="nx" value="0" onChange="culcCutPlane()" />, 
+	<input type="text" id="ny" value="0" onChange="culcCutPlane()">, 
+	<input type="text" id="nz" value="1" onChange="culcCutPlane()">)</div>
+	<div>平面方程式:
+	  <input type="text" id="coefficientX" readOnly>x+
+	  <input type="text" id="coefficientY" readOnly>y+
+	  <input type="text" id="coefficientZ" readOnly>z+
+	  <input type="text" id="coefficient" readOnly>
+	  =0
+	</div>
+      </div>
+    </article>
+    
+  </body>
+</html>
+  
