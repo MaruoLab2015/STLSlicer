@@ -1,4 +1,5 @@
 function culcCutPlane(){
+
     var nx = document.getElementById("nx").value;
     var ny = document.getElementById("ny").value;
     var nz = document.getElementById("nz").value;
@@ -19,5 +20,16 @@ function culcCutPlane(){
     document.getElementById("coefficientY").value = coy;
     document.getElementById("coefficientZ").value = coz;
     document.getElementById("coefficient").value = co;
-    console.log(nx)
+
+    //プロパティ
+    //ax+by+cz+d=0
+    this.a = parseInt(cox);
+    this.b = parseInt(coy);
+    this.c = parseInt(coz);
+    this.d = co;
+    //通る点
+    this.x0 = parseInt(x0);
+    this.y0 = parseInt(y0);
+    this.z0 = parseInt(z0);
+    
 }

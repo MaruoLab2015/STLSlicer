@@ -5,6 +5,7 @@
     <title>ファイルの読み込み</title>
     <script type="text/javascript" src="js/GIFileLoader.js"></script>
     <script type="text/javascript" src="js/CulcPlane.js"></script>
+    <script type="text/javascript" src="js/GIModel.js"></script>
     <link rel="stylesheet" href="css/main.css" type="text/css" />
   </head>
   <body onload="culcCutPlane()">
@@ -23,7 +24,7 @@
 	  (
 	  <input type="text" id="x0" value="0" onChange="culcCutPlane()" />,
 	  <input type="text" id="y0" value="0" onChange="culcCutPlane()" />,
-	  <input type="text" id="z0" value="0" onChange="culcCutPlane()" />
+	  <input type="text" id="z0" value="1" onChange="culcCutPlane()" />
 	  )
 	</div>
 	<p>切断面の法線ベクトル</p>
