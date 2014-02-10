@@ -1,4 +1,76 @@
+body{
+   font:20px;
+}
+
+#contents
+{
+   width: 980px;
+   margin: 0 auto 0 auto;
+}
+header
+{
+   Background-color :  #e78f08;
+   color: #ffffff;
+   padding-left: 10px;
+   width: 980px;
+}
+#graphicArea{
+   float: left;
+}
+#header-visibleController
+{
+   width: 690px;
+   height: 25px;
+   padding: 5px;
+   Background-color: gray;
+   /* float: left; */
+}
+
+div#canvas-frame
+{
+   width: 700px;
+   height: 640px;
+   /* Background-color: gray; */
+   /* float: left; */
+}
+
+div#side-bar
+{
+   padding: 10px;
+   width: 260px;
+   height: 620px;
+   /* Background-color: green; */
+   float: right;
+
+}
+
+div#side-bar textarea
+{
+   width: 205px;
+   height: 100px;
+}
+
 div.normalVector input
 {
    width : 20px;
 }
+
+input.mvx, input.mvy, input.mvz
+{
+   width : 30px;
+}
+
+#sliderMoveX, #sliderMoveY, #sliderMoveZ,
+      #sliderScaleX, #sliderScaleY, #sliderScaleZ
+{
+   width: 120px;
+   float: right;
+   background: #bbbbbb;
+   margin-top:10px;
+}
+
+#btnRotationX, #btnRotationY, #btnRotationZ
+{
+   width:60px;
+}
+

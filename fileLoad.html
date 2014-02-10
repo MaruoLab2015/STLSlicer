@@ -2,45 +2,168 @@
 <html>
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title>ファイルの読み込み</title>
-    <script type="text/javascript" src="js/GIFileLoader.js"></script>
-    <script type="text/javascript" src="js/CulcPlane.js"></script>
-    <script type="text/javascript" src="js/GIModel.js"></script>
-    <link rel="stylesheet" href="css/main.css" type="text/css" />
-  </head>
-  <body onload="culcCutPlane()">
-    <!-- <div id="header">
-     !--   <h1>File Read Sample</h1>
-     !-- </div> -->
-    <article>
-      <p>ファイルAPIのサンプル</p>
-      <textarea name="" id="msg" rows="7" cols="30" tabindex=""></textarea>
-      <hr />
-      <input type="file" accept="application/sla" maxlength="1" onchange="dochange(event);" />
-      <br />
-      <div class="normalVector">
-	<p>平面が含む点</p>
-	<div id="">
-	  (
-	  <input type="text" id="x0" value="0" onChange="culcCutPlane()" />,
-	  <input type="text" id="y0" value="0" onChange="culcCutPlane()" />,
-	  <input type="text" id="z0" value="1" onChange="culcCutPlane()" />
-	  )
-	</div>
-	<p>切断面の法線ベクトル</p>
-	<div>(x, y, z) = (<input type="text" id="nx" value="0" onChange="culcCutPlane()" />, 
-	<input type="text" id="ny" value="0" onChange="culcCutPlane()">, 
-	<input type="text" id="nz" value="1" onChange="culcCutPlane()">)</div>
-	<div>平面方程式:
-	  <input type="text" id="coefficientX" readOnly>x+
-	  <input type="text" id="coefficientY" readOnly>y+
-	  <input type="text" id="coefficientZ" readOnly>z+
-	  <input type="text" id="coefficient" readOnly>
-	  =0
-	</div>
-      </div>
-    </article>
+    <title>STL分割プログラム</title>
+    <script type="text/javascript" src="js/GIfileDownload.js"></script>
+    <script type="text/javascript" src="js/GIrender.js"></script>
+    <script type="text/javascript" src="js/GIcompute.js"></script>    
+    <script type="text/javascript" src="js/GIapplication.js"></script>
+
+    <script type="text/javascript" src="js/jquery-1.10.2.js"></script>
+    <script type="text/javascript" src="js/jquery-ui-1.10.4.custom.min.js"></script>
     
+    
+    
+    <link rel="stylesheet" href="css/main.css" type="text/css" />
+    <link rel="stylesheet" href="css/ui-lightness/jquery-ui-1.10.4.custom.css" />
+    <style type="text/css" media="">
+
+
+    </style>
+    <script type="text/javascript">
+      $(function(){
+      $('div#createIS p').css('color', 'red');
+      $("#ui-tab").tabs();
+      $('#progressbar').progressbar({});
+      $('#btnRotationX').button();
+      $('#btnRotationY').button();
+      $('#btnRotationZ').button();
+      $('#sliderMoveX, #sliderMoveY, #sliderMoveZ').slider({
+      
+        min: -1000,
+        max: 1000,
+        value: 0      
+      });
+      $('#sliderScaleX, #sliderScaleY, #sliderScaleZ').slider({
+
+        min: -1000,
+        max: 1000,
+        value: 1
+      });
+      });
+    </script>
+  </head>
+  
+  <body onload="threeStart();culcCutPlane();">
+
+    <div id="contents">
+      <header>
+	<h1>断面座標取得プログラム</h1>
+      </header>
+
+      <div id="graphicArea">
+	<div id="header-visibleController">
+	  <form name="chBox">
+	    <input type="checkbox" id="chkBasePlane" checked />
+	    <label for="chkBasePlane">基準平面の表示</label>
+	    <input type="checkbox" id="chkAxis" checked />
+	    <label for="chkAxis">軸の表示</label>
+	    <input type="checkbox" id="chkSTLModel" checked />
+	    <label for="chkSTLModel">STLモデルの表示</label>
+	    
+	    <input type="checkbox" id="chkCutPlane" onchange="checkBoxCutPlane()" >
+	    <label for="chkCutPlane">カット平面</label>
+	    
+	  </form>
+
+	</div>
+	<div id="canvas-frame"></div>
+      </div>
+      <div id="side-bar" float="true">
+	<div id="ui-tab">
+	  <ul>
+	    <li><a href="#transform">座標変換</a></li>
+	    <li><a href="#createIS">断面作成</a></li>
+	  </ul>	  
+	
+	
+	  <div id="transform">
+
+	    <!-- <div class="size">
+	     !--   <p>最大高さ <input type="text" name="" value="" Readonly /></p>
+	     !-- </div> -->
+	    
+	    <div class="move">
+	      <p>移動</p>
+	     <div float="left">
+	       x:<input type="text" class="mvx" value="0" />
+	       <div id="sliderMoveX" class="mvx"></div>
+	     </div>
+	     <div float="left">
+	       y:<input type="text" class="mvy" value="0" />
+	       <div id="sliderMoveY" class="mvy"></div>
+	     </div>
+	     <div float="left">
+	       z:<input type="text" class="mvz" value="0" />
+	       <div id="sliderMoveZ" class="mvx"></div>
+	     </div>
+	      <p><input type="button" name="" value="重心を中心に移動" /></p>
+	    </div>
+
+	    <div class="rotation">
+	      <p>90度回転</p>
+	      <p>
+		<button id="btnRotationX" class="rotationx">X</button>
+		<button id="btnRotationY" class="rotationy">Y</button>
+		<button id="btnRotationZ" class="rotationz">Z</button>
+	      </p>
+	    </div>
+
+	    <div class="scale">
+	      <p>拡大</p>
+	      <div float="left">
+		x:<input type="text" class="mvx" value="0" />
+		<div id="sliderScaleX" class="scx"></div>
+	      </div>
+	      <div float="left">
+		y:<input type="text" class="mvx" value="0" />
+		<div id="sliderScaleY" class="scy"></div>
+	      </div>
+	      <div float="left">
+		z:<input type="text" class="mvx" value="0" />
+		<div id="sliderScaleZ" class="scz"></div>
+	      </div>
+	    </div>
+
+	  </div>
+
+	  
+	  <div id="createIS">
+	    <p>断面座標</p>
+	    <textarea name="" id="msg" rows="7" cols="30" tabindex="" readOnly></textarea>
+	    <input class="culc" type="button" name="culc" value="断面の計算" onClick="computeIntersection();"/>
+	    <a href="javascript:downloadAsFile();" id="DL">チェック</a>
+	    <!-- <div id="progressbar" style="width:200px"></div> -->
+	    <hr />
+	    <input type="file" id="file" accept="application/sla" maxlength="1" onchange="dochange(event);"  />
+	    <br />
+	    <div class="normalVector">
+	      <p>平面が含む点</p>
+	      <div id="">
+		(
+		<input type="text" id="x0" value="0" onChange="culcCutPlane()" />,
+		<input type="text" id="y0" value="5" onChange="culcCutPlane()" />,
+		<input type="text" id="z0" value="0" onChange="culcCutPlane()" />
+		)
+	      </div>
+	      <p>切断面の法線ベクトル</p>
+	      <div>(x, y, z) = (<input type="text" id="nx" value="0" onChange="culcCutPlane()" />, 
+		<input type="text" id="ny" value="1" onChange="culcCutPlane()">, 
+		<input type="text" id="nz" value="0" onChange="culcCutPlane()">)</div>
+	      <div><p>平面方程式</p>	    
+		<input type="text" id="coefficientX" readOnly>x+
+		<input type="text" id="coefficientY" readOnly>y+
+		<input type="text" id="coefficientZ" readOnly>z+
+		<input type="text" id="coefficient" readOnly>
+		=0
+	      </div>
+	    </div>		    
+	  </div>
+	</div>
+
+      </div>
+    </div>
+
+
   </body>
 </html>
-  
+
