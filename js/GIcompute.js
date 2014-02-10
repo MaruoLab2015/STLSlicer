@@ -25,11 +25,6 @@ function computeIntersection(){
     //三角形の数だけ繰り返す
     for(var i=0;i<geometry.faces.length;i++){
 
-	// //progressbar
-	// var rate = i/geometry.faces.length * 100;
-	// $(function(){
-	//     $('#progressbar').progressbar('option', 'value', rate + 1);
-	// });
 	//あとで3点・２点とも同じ場合について考える
 	
 	//AB,BC,CAについてチェックを繰り返す

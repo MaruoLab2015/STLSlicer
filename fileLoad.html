@@ -7,18 +7,23 @@
     <script type="text/javascript" src="js/GIrender.js"></script>
     <script type="text/javascript" src="js/GIcompute.js"></script>    
     <script type="text/javascript" src="js/GIapplication.js"></script>
-
+    
     <script type="text/javascript" src="js/jquery-1.10.2.js"></script>
     <script type="text/javascript" src="js/jquery-ui-1.10.4.custom.min.js"></script>
-    
+
+    <script type="text/javascript" src="js/jquery.droppy.js"></script>
     
     
     <link rel="stylesheet" href="css/main.css" type="text/css" />
     <link rel="stylesheet" href="css/ui-lightness/jquery-ui-1.10.4.custom.css" />
+    <link rel="stylesheet" href="css/droppy.css" type="text/css" />
+    
     <style type="text/css" media="">
 
 
     </style>
+
+    
     <script type="text/javascript">
       $(function(){
       $('div#createIS p').css('color', 'red');
@@ -34,11 +39,19 @@
         value: 0      
       });
       $('#sliderScaleX, #sliderScaleY, #sliderScaleZ').slider({
-
+    
         min: -1000,
         max: 1000,
         value: 1
       });
+    
+      $('#menu').droppy();
+
+      $('#open').click(function(){
+        $('input#file').click();
+      });
+      
+    
       });
     </script>
   </head>
@@ -50,6 +63,25 @@
 	<h1>断面座標取得プログラム</h1>
       </header>
 
+      <ul id="menu">
+	<li><a href="#">ファイル</a> 
+	<ul>
+	  <li><a href="#" id="open">開く...</a> </li>
+	  <li>	    <a href="javascript:downloadAsFile();" id="DL">保存</a></li>
+	</ul>
+	</li>
+	<li> <a href="">表示</a>
+	  <ul>
+	    <li><a href="#">ワイヤーフレーム</a> </li>
+	    <li><a href="#">シェーディング</a> </li>
+	    <li><a href="#">非表示</a> </li>
+	    <li><a href="#">座標軸</a> </li>
+
+	  </ul>
+	</li>
+      </ul>
+
+      
       <div id="graphicArea">
 	<div id="header-visibleController">
 	  <form name="chBox">
@@ -131,11 +163,9 @@
 	    <p>断面座標</p>
 	    <textarea name="" id="msg" rows="7" cols="30" tabindex="" readOnly></textarea>
 	    <input class="culc" type="button" name="culc" value="断面の計算" onClick="computeIntersection();"/>
-	    <a href="javascript:downloadAsFile();" id="DL">チェック</a>
 	    <!-- <div id="progressbar" style="width:200px"></div> -->
 	    <hr />
-	    <input type="file" id="file" accept="application/sla" maxlength="1" onchange="dochange(event);"  />
-	    <br />
+	    <input type="file" id="file" accept="application/sla" maxlength="1" onchange="dochange(event);" style="display:none" />
 	    <div class="normalVector">
 	      <p>平面が含む点</p>
 	      <div id="">
