@@ -1,6 +1,6 @@
 function computeIntersection(){
 
-    if(!STLData){
+    if(!giSTLMesh){
 	alert("STLモデルを選んで下さい");
 	return;
     }
@@ -11,14 +11,12 @@ function computeIntersection(){
     var material = new THREE.MeshLambertMaterial({ color: 0x00ff00,
 						   side:THREE.DoubleSide,
 						 });
-    geometry = new THREE.Geometry();//比較用STLジオメトリ
     cutPlane = new culcCutPlane();//切断平面の初期化
     
     iSGeometry = new THREE.Geometry()//断面のジオメトリ
     var loader = new THREE.STLLoader();
 
-    //STLデータのパース(アスキーのみ))
-    geometry = stlParseASCII(STLData);
+    geometry = giSTLMesh.geometry;
 
 
     
@@ -31,11 +29,15 @@ function computeIntersection(){
 	var ivector = new THREE.Vector3();//平面と線分の交点
 	var PA, PB, p;
 	p = cutPlane;
+	var a, b, c;
+	a = geometry.faces[i].a;
+	b = geometry.faces[i].b;
+	c = geometry.faces[i].c;
 	for(var j=0;j<3;j++){
 	    switch(j){
-	    case 0: PA = geometry.faces[i].a; PB = geometry.faces[i].b; break;
-		case 1: PA = geometry.faces[i].b; PB = geometry.faces[i].c; break;
-		case 2: PA = geometry.faces[i].a; PB = geometry.faces[i].a; break;
+	    case 0: PA = geometry.vertices[a]; PB = geometry.vertices[b]; break;
+	    case 1: PA = geometry.vertices[b]; PB = geometry.vertices[c]; break;
+	    case 2: PA = geometry.vertices[a]; PB = geometry.vertices[a]; break;
 	    }
 	    console.log(PA);
 	    console.log(PB);

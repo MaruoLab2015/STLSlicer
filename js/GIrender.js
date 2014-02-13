@@ -19,16 +19,16 @@ var cupe, plane, axis;
 function threeStart(){
 
 
+    //3Dデータ描画画面サイズの取得
     width = document.getElementById('canvas-frame').clientWidth;
     height = document.getElementById('canvas-frame').clientHeight;
     
-    initScene();    //scene
-    initObject();   //mesh
-    initLight();    //light
-    initCamera();   //camera
+    initScene();    
+    initObject();   
+    initLight();    
+    initCamera();   
     rendering();
 
-    renderCutPlane();
 }
 
 /*--------------------WebGL処理-----------------------*/
@@ -128,6 +128,7 @@ function initObject(){
 function renderCutPlane( x0, y0, z0, nx, ny, nz){
 
 
+    //初期位置に回転・移動
     plane.position.set(0,0,0);
     plane.rotation.set(Math.PI/2, 0, 0);
 
@@ -135,7 +136,6 @@ function renderCutPlane( x0, y0, z0, nx, ny, nz){
     var theta2 = Math.atan2(nz, ny);
     plane.rotation.y -= theta1;
     plane.rotation.x += theta2;
-    // plane.rotation.x = 0;//-theta2;
     plane.position.set(x0, y0, z0);
 
 
@@ -189,20 +189,90 @@ function renderIntersection( point ){
 }
 
 //読み込んだSTLモデルの表示
-function renderSTLModel(data){
+function renderSTLModel(){
 
-    if(STLModel){
-	scene.remove(STLModel);
+    if(giSTLMesh){
+	scene.remove(giSTLMesh);
 	scene.remove(iSFace);
 	document.querySelector("#msg").innerHTML = "";
 	delete PointData;
     }
+    
     var stlMaterial = new THREE.MeshLambertMaterial({ color: 0xff0000,
 						      wireframe: true
 						    });
-    var loader = new THREE.STLLoader();
-    var stlGeometry = loader.parse(data);
-    STLModel = new THREE.Mesh( stlGeometry, stlMaterial);
-    scene.add( STLModel);
+    
 
+    giSTLMesh = new THREE.Mesh( giGeometrySTL, stlMaterial);
+
+    scene.add( giSTLMesh);
+
+    giGeometrySTL = moveGeometryToCenter(giGeometrySTL);
+
+}
+
+function moveGeometryToCenter(){
+
+    if(!giSTLMesh) return;
+
+    
+    giSTLMesh.geometry.dynamic = true;
+    giSTLMesh.geometry.verticesNeedUpdate = true;
+
+    var boundingBox = giSTLMesh.geometry.boundingBox.clone();
+
+    //移動量の変数の良い名前が思いつかない。。。
+    var center = new THREE.Vector3;
+    center = boundingBox.center();
+
+    giSTLMesh.geometry.applyMatrix( new THREE.Matrix4().makeTranslation(
+    	    -center.x, -boundingBox.min.y, -center.z
+    ));
+    
+    // return geometry_;
+}
+
+function rotationGeometry(axis){
+
+    if(!giSTLMesh) return;
+    
+    var rotationMatrix;
+    
+    giSTLMesh.geometry.dynamic = true;
+    giSTLMesh.geometry.verticesNeedUpdate = true;
+
+    switch(axis){
+    case"x": rotationMatrix = new THREE.Matrix4().makeRotationX( -Math.PI / 2);	break;
+    case"y": rotationMatrix = new THREE.Matrix4().makeRotationY( -Math.PI / 2);	break;
+    case"z": rotationMatrix = new THREE.Matrix4().makeRotationZ( -Math.PI / 2);	break;
+    }
+    giSTLMesh.geometry.applyMatrix(rotationMatrix);
+
+    moveGeometryToCenter(giSTLMesh.geometry);
+
+    setGeometryScale();
+}
+
+var scale_;
+function setGeometryScale(){
+
+    if(!giSTLMesh) return;
+    if(!scale_) scale_ = 1;
+
+    giSTLMesh.geometry.dynamic = true;
+    giSTLMesh.geometry.verticesNeedUpdate = true;
+    giSTLMesh.geometry.applyMatrix( new THREE.Matrix4().makeScale(
+    	   1/scale_, 1/scale_, 1/scale_
+    ));
+    
+    scale_ = document.getElementById("scaleX").value;
+
+    scale_ = parseFloat(scale_);
+
+    giSTLMesh.geometry.dynamic = true;
+    giSTLMesh.geometry.verticesNeedUpdate = true;
+    giSTLMesh.geometry.applyMatrix( new THREE.Matrix4().makeScale(
+    	    scale_, scale_, scale_
+    ));
+    
 }

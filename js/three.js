@@ -23496,6 +23496,7 @@ THREE.WebGLRenderer = function ( parameters ) {
 					 geometry.uvsNeedUpdate || geometry.normalsNeedUpdate ||
 					 geometry.colorsNeedUpdate || geometry.tangentsNeedUpdate || customAttributesDirty ) {
 
+				    console.log("update");
 					setMeshBuffers( geometryGroup, object, _gl.DYNAMIC_DRAW, !geometry.dynamic, material );
 
 				}

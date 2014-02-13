@@ -1,6 +1,5 @@
 //ワールド変数
-var STLModel, STLData, iSFace, PointData;	// iS(intersection)
-
+var giSTLMesh, iSFace, PointData, giGeometrySTL;	// iS(intersection)
 //ファイルの選択された時
 function dochange(event){
     
@@ -11,8 +10,9 @@ function dochange(event){
 	var reader = new FileReader();
 	reader.addEventListener('load', onLoaded);
 	reader.addEventListener('error', onError);
+
 	
-	reader.readAsText(file, "utf-8");	
+	reader.readAsBinaryString(file);
     }    
 }
 
@@ -20,11 +20,12 @@ function dochange(event){
 function onLoaded(event){
 
     
-    var str = event.target.result;
-
-    renderSTLModel(str);
-    STLData = new String;
-    STLData = str;
+    var tmpData = event.target.result;
+    var loader = new THREE.STLLoader();
+    giGeometrySTL = loader.parse(tmpData);
+    giGeometrySTL.computeCentroids;
+    giGeometrySTL.computeBoundingBox;
+    renderSTLModel();
     
 }
 

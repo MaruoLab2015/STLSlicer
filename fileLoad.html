@@ -48,9 +48,10 @@
       $('#menu').droppy();
 
       $('#open').click(function(){
+      
+        giIsBinary = true;
         $('input#file').click();
       });
-      
     
       });
     </script>
@@ -128,31 +129,23 @@
 	       z:<input type="text" class="mvz" value="0" />
 	       <div id="sliderMoveZ" class="mvx"></div>
 	     </div>
-	      <p><input type="button" name="" value="重心を中心に移動" /></p>
+	      <p><input type="button" name="" value="重心を中心に移動" onClick="moveGeometryToCenter();" /></p>
 	    </div>
 
 	    <div class="rotation">
 	      <p>90度回転</p>
 	      <p>
-		<button id="btnRotationX" class="rotationx">X</button>
-		<button id="btnRotationY" class="rotationy">Y</button>
-		<button id="btnRotationZ" class="rotationz">Z</button>
+		<button id="btnRotationX" class="rotationx" onClick='rotationGeometry("x");'>X</button>
+		<button id="btnRotationY" class="rotationy" onClick='rotationGeometry("y");'>Y</button>
+		<button id="btnRotationZ" class="rotationz" onClick='rotationGeometry("z");'>Z</button>
 	      </p>
 	    </div>
 
 	    <div class="scale">
-	      <p>拡大</p>
+	      <p>拡大・縮小</p>
 	      <div float="left">
-		x:<input type="text" class="mvx" value="0" />
+		倍率<input type="text" id="scaleX" class="mvx" value="1" onChange="setGeometryScale()" />
 		<div id="sliderScaleX" class="scx"></div>
-	      </div>
-	      <div float="left">
-		y:<input type="text" class="mvx" value="0" />
-		<div id="sliderScaleY" class="scy"></div>
-	      </div>
-	      <div float="left">
-		z:<input type="text" class="mvx" value="0" />
-		<div id="sliderScaleZ" class="scz"></div>
 	      </div>
 	    </div>
 
