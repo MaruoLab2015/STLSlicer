@@ -39,9 +39,6 @@ function computeIntersection(){
 	    case 1: PA = geometry.vertices[b]; PB = geometry.vertices[c]; break;
 	    case 2: PA = geometry.vertices[a]; PB = geometry.vertices[a]; break;
 	    }
-	    console.log(PA);
-	    console.log(PB);
-	    console.log(p);
 	    if((ivector = intersectPlaneAndline( p, PA, PB))){
 		iSGeometry.vertices.push(ivector);
 	    }
@@ -172,45 +169,114 @@ function culcCutPlane(){
     
 }
 
-function stlParseASCII(data){
-    
-    var patternFace, patternNormal, patternVertex, result, text, normal, geometry, length, normal;
-    geometry = new THREE.Geometry;
-    patternFace = /facet([\s\S]*?)endfacet/g;
-    
-    while(((result = patternFace.exec(data)) != null)){
+function updateSTLSize(){
 
-	text = result[0];
+    if(!giSTLMesh) return;
+    var box = giSTLMesh.geometry.boundingBox.clone();
+    $("#sizex").val(Math.round(box.max.x - box.min.x));
+    $("#sizey").val(Math.round(box.max.y - box.min.y));
+    $("#sizez").val(Math.round(box.max.z - box.min.z));
+
+    $("#numVertex").val(giSTLMesh.geometry.vertices.length);
+    $("#numFace").val(giSTLMesh.geometry.faces.length);
+}
+
+
+function setNextAndPrevHalfedge(geometry_){
+
+    if(!geometry_) return;
+
+    //全ての面に対して３つずつhalfedge作成
+    for(var i=0;i<geometry_.faces.length;i++){
+
+
+	var aFace = geometry_.faces[i];
+
+	//ハーフエッジの生成と始点の代入
+	for(var j=0;j<3;j++){
+	    var halfedge = new THREE.Halfedge();
+	    switch(j){
+	    case 0:
+		halfedge.vertex = geometry_.vertices[aFace.a];
+		break;
+	    case 1:
+		halfedge.vertex = geometry_.vertices[aFace.b];
+		break;
+	    case 2:
+		halfedge.vertex = geometry_.vertices[aFace.c];
+		break;
+	    }
+
+	    geometry_.halfedges.push(halfedge);
+	}
+
+	//next,previousの代入
+	var HElength = geometry_.halfedges.length;
+	var geoHE = geometry_.halfedges;
+
+	geometry_.halfedges[HElength-3].setNextHE(geoHE[HElength-2].id);	
+	geometry_.halfedges[HElength-3].setPrevHE(geoHE[HElength-1].id);
 	
-	// 法線ベクトルの取得
-	patternNormal = /normal[\s]+([\-+]?[0-9]+\.?[0-9]*([eE][\-+]?[0-9]+)?)+[\s]+([\-+]?[0-9]*\.?[0-9]+([eE][\-+]?[0-9]+)?)+[\s]+([\-+]?[0-9]*\.?[0-9]+([eE][\-+]?[0-9]+)?)+/g;
-	while (((result = patternNormal.exec(text)) != null)) {
-
-	    normal = new THREE.Vector3(parseFloat(result[1]), parseFloat(result[3]), parseFloat(result[5]));
-	    // console.log('(nx,ny,nz)=(%f, %f, %f)',parseFloat(result[1]) , parseFloat(result[3]), parseFloat(result[5]));
-	    
-	}
-
-	// 頂点の取得
-	patternVertex = /vertex[\s]+([\-+]?[0-9]+\.?[0-9]*([eE][\-+]?[0-9]+)?)+[\s]+([\-+]?[0-9]*\.?[0-9]+([eE][\-+]?[0-9]+)?)+[\s]+([\-+]?[0-9]*\.?[0-9]+([eE][\-+]?[0-9]+)?)+/g;
-	while (((result = patternVertex.exec(text)) != null)) {
-
-	    geometry.vertices.push(new THREE.Vector3(parseFloat(result[1]), parseFloat(result[3]), parseFloat(result[5])));
-
-	    // console.log('(x,y,z)=(%f, %f, %f)',parseFloat(result[1]) , parseFloat(result[3]), parseFloat(result[5]));
-
-	}
-	// console.log("length = %d", geometry.vertices.length);
-	length = geometry.vertices.length;
-	geometry.faces.push(new THREE.Face3(
-	    geometry.vertices[length - 3],
-	    geometry.vertices[length - 2],
-	    geometry.vertices[length - 1],
-	    normal
-	));
+	geometry_.halfedges[HElength-2].setNextHE(geoHE[HElength-1].id);
+	geometry_.halfedges[HElength-2].setPrevHE(geoHE[HElength-3].id);
+	
+	geometry_.halfedges[HElength-1].setNextHE(geoHE[HElength-3].id);
+	geometry_.halfedges[HElength-1].setPrevHE(geoHE[HElength-2].id);
 
     }
 
-    return geometry;
-    
+    return geometry_;
+}
+
+function setPairHalfedges( geometry_ ){
+
+    if( !geometry_) return;
+
+    var geoHE = geometry_.halfedges;
+    var v1, v2;	//比較する座標
+    var num=0;
+    for(var i=0;i<geometry_.halfedges.length;i++){	
+
+
+	if(geoHE[i].times_visit == 1) continue;//一度結びつけたHEはスキップ
+	num++;		    	
+	v1 = geoHE[i].vertex;
+
+	for(var j=0;j<geoHE.length;j++){
+
+	    if(i==j) continue;//同じ要素はスキップ
+
+	    v2 = geoHE[j].vertex;
+	    if(isEqualVector3( v1, v2)){
+
+		var HE1, HE2;
+		var v3, v4;
+		HE1 = geoHE[geoHE[i].next_id], HE2 = geoHE[geoHE[j].prev_id];
+		v3 = HE1.vertex; v4 = HE2.vertex;
+		if(isEqualVector3(v3, v4)){
+		    geometry_.halfedges[i].pair_id = j;
+		    geometry_.halfedges[j].pair_id = i;
+		    geoHE[i].times_visit++;
+		    geoHE[j].times_visit++;
+
+		}
+	    }
+	    
+	}
+    }
+
+    console.log(num);
+
+    return geometry_;
+}
+
+function isEqualVector3( v, w){
+
+    // console.log(v);
+    // console.log(w);
+    if(!(v.x == w.x)) return false;
+    if(!(v.y == w.y)) return false;
+    if(!(v.z == w.z)) return false;
+
+    return true;
 }

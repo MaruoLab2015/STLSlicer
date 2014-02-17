@@ -1,4 +1,4 @@
-document.write('<script src="js/three.min.js"></script>')         //3D描画ライブラリ
+document.write('<script src="js/three.js"></script>')         //3D描画ライブラリ
 document.write('<script src="js/STLLoader.js"></script>')     //STL読み込みライブラリ
 document.write('<script src="js/OrbitControls.js"></script>') // マウスでグリグリ回転プラグイン
 
@@ -138,8 +138,6 @@ function renderCutPlane( x0, y0, z0, nx, ny, nz){
     plane.rotation.x += theta2;
     plane.position.set(x0, y0, z0);
 
-
-    // plane.visible = true;
 }
 
 function checkBoxCutPlane(){
@@ -228,8 +226,58 @@ function moveGeometryToCenter(){
     giSTLMesh.geometry.applyMatrix( new THREE.Matrix4().makeTranslation(
     	    -center.x, -boundingBox.min.y, -center.z
     ));
-    
+    // document.getElementById("mvx").value = -center.x;
+    // document.getElementById("mvy").value = -boundingBox.min.y;
+    // document.getElementById("mvz").value = -center.z;
     // return geometry_;
+}
+
+function moveCenter(){
+
+    if(!giSTLMesh) return;
+    
+    var boundingBox = giSTLMesh.geometry.boundingBox.clone();
+    var center = boundingBox.center();
+    $('#mvx, #mvy, #mvz').val(0);
+    $('#sliderMoveX, #sliderMoveY, #sliderMoveZ').slider(
+	'option', 'value', 0
+    );
+    
+    moveGeometryToCenter();
+}
+
+function translateGeometry(){
+
+    if(!giSTLMesh) return;
+
+    moveGeometryToCenter();
+    
+    var translationMatrix;
+    var x,y,z;
+    x=0, y=0, z=0;
+    
+    giSTLMesh.geometry.dynamic = true;
+    giSTLMesh.geometry.verticesNeedUpdate = true;
+
+    x = document.getElementById("mvx").value;
+    y = document.getElementById("mvy").value;
+    z = document.getElementById("mvz").value;
+
+    $('#sliderMoveX').slider(
+	'option', 'value', x
+    );
+
+    $('#sliderMoveY').slider(
+	'option', 'value', y
+    );
+    $('#sliderMoveZ').slider(
+	'option', 'value', z
+    );
+    
+
+    translationMatrix= new THREE.Matrix4().makeTranslation(x, y, z);
+    giSTLMesh.geometry.applyMatrix(translationMatrix);
+
 }
 
 function rotationGeometry(axis){
@@ -248,31 +296,61 @@ function rotationGeometry(axis){
     }
     giSTLMesh.geometry.applyMatrix(rotationMatrix);
 
-    moveGeometryToCenter(giSTLMesh.geometry);
+    translateGeometry();
+    // moveGeometryToCenter(giSTLMesh.geometry);
+    
 
-    setGeometryScale();
 }
 
 var scale_;
-function setGeometryScale(){
+if(!scale_) scale_ = 1;
+function setGeometryScale(isSlider){
 
     if(!giSTLMesh) return;
-    if(!scale_) scale_ = 1;
 
+    // if(isSlider){
+
+    // 	if(document.getElementById("scale").value <= 0){
+    // 	    s_ = document.getElementById("scale").value ;
+    // 	    s_ = Math.abs(s_);
+    // 	    s_ = 1 / s_;
+    // 	    document.getElementById("scale").value = s_;
+    // 	} 
+    // }else{
+
+    	if(document.getElementById("scale").value <= 0){
+    	    document.getElementById("scale").value = "1";
+    	    return;
+    	} 
+    // }
+    
+
+    //scaleを元に戻す
     giSTLMesh.geometry.dynamic = true;
     giSTLMesh.geometry.verticesNeedUpdate = true;
     giSTLMesh.geometry.applyMatrix( new THREE.Matrix4().makeScale(
     	   1/scale_, 1/scale_, 1/scale_
     ));
+
     
-    scale_ = document.getElementById("scaleX").value;
+    scale_ = document.getElementById("scale").value;
+    // if(scale_ <= 0){
+    // 	document.getElementById("scale").value = "1";
+    // }
+
 
     scale_ = parseFloat(scale_);
+
+    
+
 
     giSTLMesh.geometry.dynamic = true;
     giSTLMesh.geometry.verticesNeedUpdate = true;
     giSTLMesh.geometry.applyMatrix( new THREE.Matrix4().makeScale(
     	    scale_, scale_, scale_
     ));
+
+
+    updateSTLSize();
     
 }

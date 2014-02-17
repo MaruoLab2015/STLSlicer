@@ -34,15 +34,34 @@
       $('#btnRotationZ').button();
       $('#sliderMoveX, #sliderMoveY, #sliderMoveZ').slider({
       
-        min: -1000,
-        max: 1000,
-        value: 0      
+        min: -100,
+        max: 100,
+        value: 0
+      
       });
-      $('#sliderScaleX, #sliderScaleY, #sliderScaleZ').slider({
-    
-        min: -1000,
-        max: 1000,
-        value: 1
+
+      $('#sliderMoveX').slider({
+
+        slide:function(event, ui){
+          $('#mvx').val(ui.value);
+          translateGeometry();
+      }
+      });
+
+      $('#sliderMoveY').slider({
+
+        slide:function(event, ui){
+          $('#mvy').val(ui.value);
+          translateGeometry();
+      }
+      });
+
+      $('#sliderMoveZ').slider({
+
+        slide:function(event, ui){
+          $('#mvz').val(ui.value);
+          translateGeometry();
+      }
       });
     
       $('#menu').droppy();
@@ -100,6 +119,17 @@
 
 	</div>
 	<div id="canvas-frame"></div>
+	<div id="model-info">
+	  size
+	    x：<input type="text" id="sizex" value="0" align="center" readonly/>
+	    y：<input type="text" id="sizey" value="0" readonly/>
+	    z：<input type="text" id="sizez" value="0" readonly/>
+	    
+
+
+	  vertices：<input type="text" id="numVertex" value="0" readonly/>
+	  faces：<input type="text" id="numFace" value="0" readonly/>
+	</div>
       </div>
       <div id="side-bar" float="true">
 	<div id="ui-tab">
@@ -116,20 +146,20 @@
 	     !-- </div> -->
 	    
 	    <div class="move">
-	      <p>移動</p>
+	      <p>移動(-100~100)</p>
 	     <div float="left">
-	       x:<input type="text" class="mvx" value="0" />
+	       x:<input type="text" id="mvx" class="mvx" value="0" onChange='translateGeometry()'/>
 	       <div id="sliderMoveX" class="mvx"></div>
 	     </div>
 	     <div float="left">
-	       y:<input type="text" class="mvy" value="0" />
+	       y:<input type="text" id="mvy" class="mvy" value="0" onChange='translateGeometry()'/>
 	       <div id="sliderMoveY" class="mvy"></div>
 	     </div>
 	     <div float="left">
-	       z:<input type="text" class="mvz" value="0" />
+	       z:<input type="text" id="mvz" class="mvz" value="0" onChange='translateGeometry()'/>
 	       <div id="sliderMoveZ" class="mvx"></div>
 	     </div>
-	      <p><input type="button" name="" value="重心を中心に移動" onClick="moveGeometryToCenter();" /></p>
+	      <p><input type="button" name="" value="中心に移動" onClick="moveCenter();" /></p>
 	    </div>
 
 	    <div class="rotation">
@@ -142,10 +172,10 @@
 	    </div>
 
 	    <div class="scale">
-	      <p>拡大・縮小</p>
+	      <p>拡大・縮小(0.01~100)</p>
 	      <div float="left">
-		倍率<input type="text" id="scaleX" class="mvx" value="1" onChange="setGeometryScale()" />
-		<div id="sliderScaleX" class="scx"></div>
+		倍率<input type="text" id="scale" class="mvx" value="1" onChange="setGeometryScale(false)" />
+		<div id="slider_scale" class="scx"></div>
 	      </div>
 	    </div>
 

@@ -61,7 +61,7 @@ input.mvx, input.mvy, input.mvz
 }
 
 #sliderMoveX, #sliderMoveY, #sliderMoveZ,
-      #sliderScaleX, #sliderScaleY, #sliderScaleZ
+      #slider_scale
 {
    width: 120px;
    float: right;
@@ -73,4 +73,24 @@ input.mvx, input.mvy, input.mvz
 {
    width:60px;
 }
+
+#model-info
+{
+   width:690px;
+   height: 25px;
+   padding: 5px;
+   color: white;
+   Background-color: black;
+
+}
+
+#model-info input
+{
+   width: 60px;
+   color: white;
+   Background-color: black;
+   border: none;
+   margin: 0 auto 0 auto ;
+}
+
 

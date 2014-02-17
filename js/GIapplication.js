@@ -1,5 +1,5 @@
 //ワールド変数
-var giSTLMesh, iSFace, PointData, giGeometrySTL;	// iS(intersection)
+var giSTLMesh, giSTLMeshOrigin, iSFace, PointData, giGeometrySTL;	// iS(intersection)
 //ファイルの選択された時
 function dochange(event){
     
@@ -25,7 +25,18 @@ function onLoaded(event){
     giGeometrySTL = loader.parse(tmpData);
     giGeometrySTL.computeCentroids;
     giGeometrySTL.computeBoundingBox;
+    
+    giGeometrySTL = setNextAndPrevHalfedge(giGeometrySTL);
+
+    giGeometrySTL = setPairHalfedges(giGeometrySTL);
+
+    // for(var i=0;i<giGeometrySTL.halfedges.length;i++){
+
+    // 	console.log(giGeometrySTL.halfedges[i].pair_id);
+    // }
     renderSTLModel();
+
+    updateSTLSize();
     
 }
 

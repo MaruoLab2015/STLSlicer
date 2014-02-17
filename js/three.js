@@ -1437,11 +1437,45 @@ THREE.Vector2.prototype = {
  * @author WestLangley / http://github.com/WestLangley
  */
 
+THREE.HalfedgeIdCount = 0;
+THREE.Halfedge = function( next_id, prev_id, pair_id){
+
+    this.id          = THREE.HalfedgeIdCount++;
+    this.vertex      = new THREE.Vector3();
+    this.next_id     = next_id || 0;
+    this.prev_id     = prev_id || 0;
+    this.pair_id     = pair_id || 0;
+    this.face        = new THREE.Face3();
+    this.times_visit = 0;
+}
+
+
+THREE.Halfedge.prototype = {
+
+    setNextHE: function( HE ){
+
+	this.next_id = HE;
+    },
+
+    setPrevHE: function( HE ){
+
+	this.prev_id = HE;
+    },
+
+    setPairHE: function( HE ){
+
+	this.pair_id = HE;
+    }
+    
+}
+
 THREE.Vector3 = function ( x, y, z ) {
 
 	this.x = x || 0;
 	this.y = y || 0;
 	this.z = z || 0;
+
+    this.edges = [];//new THREE.Halfedge();
 
 };
 
@@ -3727,7 +3761,7 @@ THREE.Box3.prototype = {
 
 	}(),
 
-	getBoundingSphere: function() {
+	getBoundinSphere: function() {
 
 		var v1 = new THREE.Vector3();
 
@@ -8441,6 +8475,8 @@ THREE.Geometry = function () {
 	this.colors = [];  // one-to-one vertex colors, used in ParticleSystem and Line
 
 	this.faces = [];
+
+        this.halfedges = [];
 
 	this.faceVertexUvs = [[]];
 
