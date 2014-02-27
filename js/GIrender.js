@@ -1,7 +1,9 @@
-document.write('<script src="js/three.js"></script>')         //3D描画ライブラリ
+document.write('<script src="js/three.min.js"></script>')         //3D描画ライブラリ
 document.write('<script src="js/STLLoader.js"></script>')     //STL読み込みライブラリ
 document.write('<script src="js/OrbitControls.js"></script>') // マウスでグリグリ回転プラグイン
 
+//world変数
+var giISGeometries = [];//断面データたち
 /*--------------------webGL処理-----------------------*/
 var width, height;
 var renderer;
@@ -28,7 +30,6 @@ function threeStart(){
     initLight();    
     initCamera();   
     rendering();
-
 }
 
 /*--------------------WebGL処理-----------------------*/
@@ -92,16 +93,18 @@ function initObject(){
     for(var i=-5; i<5; i++){
 	for(var j=-5; j<5; j++){
 	    var groundColor = ((i+j)&1) == 1 ? 0x999999 : 0x333333;
-	    var mesh = new THREE.Mesh(new THREE.PlaneGeometry(25, 25), new THREE.MeshLambertMaterial({color: groundColor,
-												      side:THREE.DoubleSide
+	    var mesh = new THREE.Mesh(new THREE.PlaneGeometry(25, 25), new THREE.MeshLambertMaterial({color: groundColor// ,
+												      // side:THREE.DoubleSide
 												     }));
 	    mesh.rotation.x = - 90 *Math.PI / 180;
+	    
 
 	    var x = i*25;
 	    var y = j*25;
 
 	    mesh.position.x = x*Math.cos(radian) - y*Math.sin(radian);
 	    mesh.position.z = x*Math.sin(radian) + y*Math.cos(radian);
+	    mesh.position.y = -0.05;
 	    scene.add(mesh);
 	}
     }
@@ -120,38 +123,35 @@ function initObject(){
     scene.add(plane);		
 
 
-    checkBoxCutPlane();
+    // checkBoxCutPlane();
+    checkVisible("CutPlane");
     renderIntersection();
 }
 
-//切断平面の描画
-function renderCutPlane( x0, y0, z0, nx, ny, nz){
+function checkVisible( mesh ){
 
-
-    //初期位置に回転・移動
-    plane.position.set(0,0,0);
-    plane.rotation.set(Math.PI/2, 0, 0);
-
-    var theta1 = Math.atan2(nx, ny);
-    var theta2 = Math.atan2(nz, ny);
-    plane.rotation.y -= theta1;
-    plane.rotation.x += theta2;
-    plane.position.set(x0, y0, z0);
-
+    var check;
+    switch(mesh){
+	
+    case "Axis":
+	check = $("#chkAxis").get(0);
+	toggleVisibleGeometry( axis, check );break;
+	
+    case "STLMesh":
+	if(!giMeshSTL) return;
+	check = $("#chkSTLModel").get(0);
+	toggleVisibleGeometry( giMeshSTL, check); break;
+	
+    case "CutPlane":
+	check = $("#chkCutPlane").get(0);
+	toggleVisibleGeometry( plane, check); break;	
+    }
 }
 
-function checkBoxCutPlane(){
+function toggleVisibleGeometry( geometry_, check){
 
-    var check = document.getElementById("chkCutPlane");
-    if(check.checked){
-
-	plane.visible = true;
-	console.log("check!");
-    }else{
-
-	plane.visible = false;
-	console.log("uncheck");
-    }
+    if(check.checked) geometry_.visible = true;
+    else geometry_.visible = false;
 }
 
 //切断面の描画
@@ -182,61 +182,155 @@ function renderIntersection( point ){
 						 });
 
     var face = new THREE.Mesh( geom, material);
-    // scene.add(face);
     
+}
+
+function renderLine( geometry_){
+
+    var material = new THREE.LineBasicMaterial( { linewidth: 3, color: 0xcccc00 } );
+
+    
+    var n = geometry_.vertices.length;
+    var sp, ep;
+
+    var isMeshes = [];
+
+    for(var i=0;i<geometry_.endPoint.length ;i++){
+	var aGeometry = new THREE.Geometry();
+	var aLine = [];
+	
+	if(!geometry_.endPoint[i-1]) sp = 0;
+	else sp = geometry_.endPoint[i-1] + 1;	
+	ep = geometry_.endPoint[i];
+
+	for(var j=0;j<=ep - sp ;j++){
+
+	    aLine.push(geometry_.vertices[sp + j]);
+	}
+	
+	aGeometry.vertices = aLine;
+	isMeshes.push(new THREE.Line( aGeometry, material));
+    }
+
+    for(var i=0;i<isMeshes.length;i++){
+	scene.add( isMeshes[i]);
+	giISGeometries.push( isMeshes[i]);
+    }
+}
+
+//切断平面の描画
+function renderCutPlane( x0, y0, z0, nx, ny, nz){
+
+
+    //初期位置に回転・移動
+    plane.position.set(0,0,0);
+    plane.rotation.set(Math.PI/2, 0, 0);
+
+    var theta1 = Math.atan2(nx, ny);
+    var theta2 = Math.atan2(nz, ny);
+    plane.rotation.y -= theta1;
+    plane.rotation.x += theta2;
+    plane.position.set(x0, y0, z0);
+
+}
+
+const STLMESH  = 0;
+const ISMESHES = 1;
+const ISMESH   = 2;
+//各マテリアルの設定
+function setMaterial( mesh ){
+
+    var material;
+    switch( mesh ){
+    case STLMESH:
+	material = new THREE.MeshLambertMaterial(
+	    { color: 0xff0000,
+	      wireframe: true
+	    }
+	);
+	return material;
+	break;
+    case ISMESHES:
+	break;
+    case ISMESH:
+	var material = new THREE.MeshLambertMaterial({
+	    color: 0x000000,
+	    side:THREE.DoubleSide
+	});
+	break;
+    }
 }
 
 //読み込んだSTLモデルの表示
-function renderSTLModel(){
+function renderSTLModel( geometry_ ){
 
-    if(giSTLMesh){
-	scene.remove(giSTLMesh);
-	scene.remove(iSFace);
-	document.querySelector("#msg").innerHTML = "";
-	delete PointData;
-    }
-    
-    var stlMaterial = new THREE.MeshLambertMaterial({ color: 0xff0000,
-						      wireframe: true
-						    });
-    
-
-    giSTLMesh = new THREE.Mesh( giGeometrySTL, stlMaterial);
-
-    scene.add( giSTLMesh);
-
-    giGeometrySTL = moveGeometryToCenter(giGeometrySTL);
+   
+    giMeshSTL = new THREE.Mesh( geometry_ , setMaterial(STLMESH));
+    scene.add( giMeshSTL);
+    moveGeometryToCenter(giMeshSTL.geometry);
 
 }
 
-function moveGeometryToCenter(){
+//断面を一度削除する
+function initGeometries(){
 
-    if(!giSTLMesh) return;
-
+    if(giMeshSTL){
+	
+	scene.remove(giMeshSTL);
+	scene.remove(iSFace);
+    }
     
-    giSTLMesh.geometry.dynamic = true;
-    giSTLMesh.geometry.verticesNeedUpdate = true;
+    if(giISGeometries){
+	
+	for(var i=0;i<giISGeometries.length;i++){	
+    	    scene.remove( giISGeometries[i]);
+	}
+    }
+}
 
-    var boundingBox = giSTLMesh.geometry.boundingBox.clone();
+function renderGeometry( geometry_){
+
+    var material = new THREE.MeshLambertMaterial({
+	color: 0x00ff00,
+	side:THREE.DoubleSide
+    });
+    
+    setFace3toGeometry(geometry_);
+
+    var Mesh = new THREE.Mesh( geometry_, material);
+    // var Mesh = new THREE.Mesh( geometry_, setMaterial(ISMESH));
+    scene.add( Mesh);
+    giISGeometries.push(Mesh);
+}
+
+
+/*--------------------Geometryの座標変換-----------------------*/
+
+function moveGeometryToCenter( geometry_){
+
+    if(!giMeshSTL) return;
+
+    // geometry_.dynamic = true;
+    // geometry_.verticesNeedUpdate = true;
+    giMeshSTL.geometry.dynamic = true;
+    giMeshSTL.geometry.verticesNeedUpdate = true;
+
+    var boundingBox = giMeshSTL.geometry.boundingBox.clone();
 
     //移動量の変数の良い名前が思いつかない。。。
     var center = new THREE.Vector3;
     center = boundingBox.center();
 
-    giSTLMesh.geometry.applyMatrix( new THREE.Matrix4().makeTranslation(
+    giMeshSTL.geometry.applyMatrix( new THREE.Matrix4().makeTranslation(
     	    -center.x, -boundingBox.min.y, -center.z
     ));
-    // document.getElementById("mvx").value = -center.x;
-    // document.getElementById("mvy").value = -boundingBox.min.y;
-    // document.getElementById("mvz").value = -center.z;
-    // return geometry_;
 }
 
 function moveCenter(){
 
-    if(!giSTLMesh) return;
+    if(!giMeshSTL) return;
     
-    var boundingBox = giSTLMesh.geometry.boundingBox.clone();
+    var boundingBox = giMeshSTL.geometry.boundingBox.clone();
     var center = boundingBox.center();
     $('#mvx, #mvy, #mvz').val(0);
     $('#sliderMoveX, #sliderMoveY, #sliderMoveZ').slider(
@@ -248,7 +342,7 @@ function moveCenter(){
 
 function translateGeometry(){
 
-    if(!giSTLMesh) return;
+    if(!giMeshSTL) return;
 
     moveGeometryToCenter();
     
@@ -256,8 +350,8 @@ function translateGeometry(){
     var x,y,z;
     x=0, y=0, z=0;
     
-    giSTLMesh.geometry.dynamic = true;
-    giSTLMesh.geometry.verticesNeedUpdate = true;
+    giMeshSTL.geometry.dynamic = true;
+    giMeshSTL.geometry.verticesNeedUpdate = true;
 
     x = document.getElementById("mvx").value;
     y = document.getElementById("mvy").value;
@@ -274,83 +368,73 @@ function translateGeometry(){
 	'option', 'value', z
     );
     
-
     translationMatrix= new THREE.Matrix4().makeTranslation(x, y, z);
-    giSTLMesh.geometry.applyMatrix(translationMatrix);
-
+    giMeshSTL.geometry.applyMatrix(translationMatrix);
 }
 
 function rotationGeometry(axis){
 
-    if(!giSTLMesh) return;
+    if(!giMeshSTL) return;
     
     var rotationMatrix;
     
-    giSTLMesh.geometry.dynamic = true;
-    giSTLMesh.geometry.verticesNeedUpdate = true;
+    giMeshSTL.geometry.dynamic = true;
+    giMeshSTL.geometry.verticesNeedUpdate = true;
 
     switch(axis){
     case"x": rotationMatrix = new THREE.Matrix4().makeRotationX( -Math.PI / 2);	break;
     case"y": rotationMatrix = new THREE.Matrix4().makeRotationY( -Math.PI / 2);	break;
     case"z": rotationMatrix = new THREE.Matrix4().makeRotationZ( -Math.PI / 2);	break;
     }
-    giSTLMesh.geometry.applyMatrix(rotationMatrix);
+    giMeshSTL.geometry.applyMatrix(rotationMatrix);
 
     translateGeometry();
-    // moveGeometryToCenter(giSTLMesh.geometry);
-    
-
 }
 
 var scale_;
 if(!scale_) scale_ = 1;
 function setGeometryScale(isSlider){
 
-    if(!giSTLMesh) return;
+    if(!giMeshSTL) return;
 
-    // if(isSlider){
-
-    // 	if(document.getElementById("scale").value <= 0){
-    // 	    s_ = document.getElementById("scale").value ;
-    // 	    s_ = Math.abs(s_);
-    // 	    s_ = 1 / s_;
-    // 	    document.getElementById("scale").value = s_;
-    // 	} 
-    // }else{
-
-    	if(document.getElementById("scale").value <= 0){
-    	    document.getElementById("scale").value = "1";
-    	    return;
-    	} 
-    // }
+    if(document.getElementById("scale").value <= 0){
+    	document.getElementById("scale").value = "1";
+    	return;
+    } 
     
-
     //scaleを元に戻す
-    giSTLMesh.geometry.dynamic = true;
-    giSTLMesh.geometry.verticesNeedUpdate = true;
-    giSTLMesh.geometry.applyMatrix( new THREE.Matrix4().makeScale(
+    giMeshSTL.geometry.dynamic = true;
+    giMeshSTL.geometry.verticesNeedUpdate = true;
+    giMeshSTL.geometry.applyMatrix( new THREE.Matrix4().makeScale(
     	   1/scale_, 1/scale_, 1/scale_
     ));
 
     
     scale_ = document.getElementById("scale").value;
-    // if(scale_ <= 0){
-    // 	document.getElementById("scale").value = "1";
-    // }
-
-
     scale_ = parseFloat(scale_);
 
-    
-
-
-    giSTLMesh.geometry.dynamic = true;
-    giSTLMesh.geometry.verticesNeedUpdate = true;
-    giSTLMesh.geometry.applyMatrix( new THREE.Matrix4().makeScale(
+    giMeshSTL.geometry.dynamic = true;
+    giMeshSTL.geometry.verticesNeedUpdate = true;
+    giMeshSTL.geometry.applyMatrix( new THREE.Matrix4().makeScale(
     	    scale_, scale_, scale_
     ));
-
-
     updateSTLSize();
+}
+
+function setFace3toGeometry( geometry_){
+
+    var cutPlane = new culcCutPlane();
+    var faceNormal = new THREE.Vector3(cutPlane.nx, cutPlane.ny, cutPlane.nz);
+    var n = geometry_.vertices.length;
+    var sp, ep;
     
+    for(var i=0;i<geometry_.endPoint.length ;i++){
+	sp = geometry_.endPoint[i - 1] || 0;
+	ep = geometry_.endPoint[i];
+	for(var j=0;j< ep - sp -2;j++){
+	    var face = new THREE.Face3(sp, sp + j+2, sp +j+1);
+    	    face.normal = faceNormal;
+    	    geometry_.faces.push(face);
+	}
+    }
 }

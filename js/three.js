@@ -1447,6 +1447,8 @@ THREE.Halfedge = function( next_id, prev_id, pair_id){
     this.pair_id     = pair_id || 0;
     this.face        = new THREE.Face3();
     this.times_visit = 0;
+    this.unVisited = true;
+    this.isVertex = false;
 }
 
 
@@ -8477,6 +8479,7 @@ THREE.Geometry = function () {
 	this.faces = [];
 
         this.halfedges = [];
+        this.faceStartPoint = [];
 
 	this.faceVertexUvs = [[]];
 
@@ -8992,7 +8995,7 @@ THREE.Geometry.prototype = {
 
 			} else {
 
-				//console.log('Duplicate vertex found. ', i, ' could be using ', verticesMap[key]);
+				// console.log('Duplicate vertex found. ', i, ' could be using ', verticesMap[key]);
 				changes[ i ] = changes[ verticesMap[ key ] ];
 
 			}

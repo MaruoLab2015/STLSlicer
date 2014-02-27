@@ -1,5 +1,24 @@
-//ワールド変数
-var giSTLMesh, giSTLMeshOrigin, iSFace, PointData, giGeometrySTL;	// iS(intersection)
+//ワールド変数 iS(intersection)
+var giMeshSTL, giSTLMeshOrigin, iSFace, giGeometrySTL;
+
+//断面計算ボタン
+function clickBtnComputeIS(){
+
+    if(!giMeshSTL){
+	alert("STLモデルを選んで下さい");
+	return;
+    }
+
+    scene.remove(iSFace);
+    
+    var plane_ = new culcCutPlane();
+    var geometry_ = computeIntersection( plane_);
+    
+    renderGeometry( geometry_);
+    // renderLine( geometry_ );
+    
+}
+
 //ファイルの選択された時
 function dochange(event){
     
@@ -10,7 +29,6 @@ function dochange(event){
 	var reader = new FileReader();
 	reader.addEventListener('load', onLoaded);
 	reader.addEventListener('error', onError);
-
 	
 	reader.readAsBinaryString(file);
     }    
@@ -22,22 +40,19 @@ function onLoaded(event){
     
     var tmpData = event.target.result;
     var loader = new THREE.STLLoader();
-    giGeometrySTL = loader.parse(tmpData);
-    giGeometrySTL.computeCentroids;
-    giGeometrySTL.computeBoundingBox;
     
-    giGeometrySTL = setNextAndPrevHalfedge(giGeometrySTL);
-
-    giGeometrySTL = setPairHalfedges(giGeometrySTL);
-
-    // for(var i=0;i<giGeometrySTL.halfedges.length;i++){
-
-    // 	console.log(giGeometrySTL.halfedges[i].pair_id);
-    // }
-    renderSTLModel();
-
+    THREE.HalfedgeIdCount = 0;//初期化
+    initGeometries();
+    renderSTLModel( loader.parse(tmpData));
+    document.querySelector("#msg").innerHTML = "";
+    
+    setNextAndPrevHalfedge(giMeshSTL.geometry);
+    setPairHalfedges(giMeshSTL.geometry);
     updateSTLSize();
-    
+
+    // computeLayers();
+    // computeIntersection();
+    // downloadAsHPGLFormat();
 }
 
 //ファイルの読み込み失敗
@@ -47,4 +62,20 @@ function onError(event){
     }else{
 	alert("エラーが発生しました。" + event.target.error.code);
     }
+}
+
+function insertText( geometry_){
+
+    var strPoint = new String;
+    for(var i=0;i<geometry_.vertices.length;i++){
+	// console.log(G.vertices[i]);
+	strPoint += geometry_.vertices[i].x;
+	strPoint += ",";
+	strPoint += geometry_.vertices[i].y;
+	strPoint += ",";
+	strPoint += geometry_.vertices[i].z;
+	strPoint += "\n";	
+    }
+    document.querySelector("#msg").innerHTML = strPoint;
+
 }

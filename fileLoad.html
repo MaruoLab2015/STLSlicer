@@ -87,7 +87,8 @@
 	<li><a href="#">ファイル</a> 
 	<ul>
 	  <li><a href="#" id="open">開く...</a> </li>
-	  <li>	    <a href="javascript:downloadAsFile();" id="DL">保存</a></li>
+	  <li><a href="javascript:downloadAsFile();" id="DL">保存</a></li>
+	  <li><a href="javascript:downloadAsHPGLFormat();" id="DL">HPGLで保存</a></li>
 	</ul>
 	</li>
 	<li> <a href="">表示</a>
@@ -105,14 +106,12 @@
       <div id="graphicArea">
 	<div id="header-visibleController">
 	  <form name="chBox">
-	    <input type="checkbox" id="chkBasePlane" checked />
-	    <label for="chkBasePlane">基準平面の表示</label>
-	    <input type="checkbox" id="chkAxis" checked />
+	    <input type="checkbox" id="chkAxis" checked onchange='checkVisible("Axis")'/>
 	    <label for="chkAxis">軸の表示</label>
-	    <input type="checkbox" id="chkSTLModel" checked />
+	    <input type="checkbox" id="chkSTLModel" checked onchange='checkVisible("STLMesh")'/>
 	    <label for="chkSTLModel">STLモデルの表示</label>
 	    
-	    <input type="checkbox" id="chkCutPlane" onchange="checkBoxCutPlane()" >
+	    <input type="checkbox" id="chkCutPlane" onchange='checkVisible("CutPlane")'/ >
 	    <label for="chkCutPlane">カット平面</label>
 	    
 	  </form>
@@ -185,7 +184,10 @@
 	  <div id="createIS">
 	    <p>断面座標</p>
 	    <textarea name="" id="msg" rows="7" cols="30" tabindex="" readOnly></textarea>
-	    <input class="culc" type="button" name="culc" value="断面の計算" onClick="computeIntersection();"/>
+	    <input class="culc" type="button" name="culc" value="断面の計算" onClick="clickBtnComputeIS();"/>
+	    <input class="culc" type="button" name="culc" value="複数層の計算" onClick="computeLayers();"/>
+	    積層ピッチ:<input type="text" id="pitch" value="5" onChange="" style="width:30px" />
+	    
 	    <!-- <div id="progressbar" style="width:200px"></div> -->
 	    <hr />
 	    <input type="file" id="file" accept="application/sla" maxlength="1" onchange="dochange(event);" style="display:none" />

@@ -175,41 +175,6 @@ THREE.STLLoader.prototype.parseASCII = function (data) {
 		geometry.faces.push( aFace);
 
 
-	    //ハーフエッジ作成と始点座標の代入
-	    // for(var i=0; i<3; i++){
-	    // 	halfedge = new THREE.Halfedge();
-	    // 	halfedge.face = aFace;
-	    // 	halfedge.vertex = geometry.vertices[length - (3-i)];		
-	    // 	geometry.halfedges.push(halfedge);
-		
-	    // }
-
-	    // var hlength = geometry.halfedges.length;
-	    // //互いのハーフエッジのリンク付
-	    // for(var i=0; i<3; i++){
-
-	    // 	switch(i){
-	    // 	case 0:
-	    // 	    console.log(geometry.halfedges[0].next[0];//hlength - 3].next.push(geometry.halfedes[length - 2]);
-	    // 	//     geometry.halfedges[hlength - 3].prev.push(geometry.halfedes[length - 1]);
-	    // 	//     break;
-	    // 	// case 1:
-	    // 	//     geometry.halfedges[hlength - 2].next.push(geometry.halfedes[length - 1]);
-	    // 	//     geometry.halfedges[hlength - 2].prev.push(geometry.halfedes[length - 3]);
-	    // 	//     break;
-	    // 	// case 2:
-	    // 	//     geometry.halfedges[hlength - 1].next.push(geometry.halfedes[length - 3]);
-	    // 	//     geometry.halfedges[hlength - 1].prev.push(geometry.halfedes[length - 2]);
-	    // 	//     break;
-	    // 	}
-		
-
-	    // }
-
-	    
-
-	    // console.log(halfedge);
-
 	}
 
 	geometry.computeCentroids();
