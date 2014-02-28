@@ -21,23 +21,38 @@ function downloadAsHPGLFormat(){
     }
 
     var zip = new JSZip();
+    var str = new String();
+    var num = 0;
 
     //層の数だけ繰り返す
     for(var i=0;i<giISGeometries.length;i++){
 
     	var title = new String;
     	var layerNumber = new String;
-    	layerNumber += "0000";//五桁にする
-    	layerNumber += i.toString(10);//１０進数で文字にする
+
+	str += isGeometryToHPGL( giISGeometries[i].geometry);
+	if(i==giISGeometries.length -1);
+	else if(Math.abs(giISGeometries[i].geometry.vertices[0].y -
+		giISGeometries[i+1].geometry.vertices[0].y) < 0.1 ){
+	    console.log("continue");
+	    continue;
+	}
+	    
+	console.log(str);
+	layerNumber += "0000";//五桁にする
+    	layerNumber += num.toString(10);//１０進数で文字にする
     	layerNumber = layerNumber.slice(-5);
     	title += "model";
     	title += layerNumber;
     	title += ".hpgl";
-    	zip.file( title, isGeometryToHPGL( giISGeometries[i].geometry));  
+	zip.file( title, str);
+	str = "";
+	num++;
     }
 
     var content = zip.generate();
-    location.href="data:application/zip;base64,"+content;    
+    location.href="data:application/zip;base64,"+content;
+    
 }
 
 function isGeometryToHPGL( geometry_){
@@ -49,17 +64,16 @@ function isGeometryToHPGL( geometry_){
     str += "PU;\n";
     for(var i=0;i< n ;i++){
 
+	str += "PA"
 	str += geometry_.vertices[ i].x;
 	str += ",";
 	// str += geometry_.vertices[i].y;
 	// str += ",";
 	str += geometry_.vertices[ i].z;
-	str += "\n";
+	str += ";\n";
 
 	if(i==0) str += "PD;\n";
     }
-
-    str += "PU;";
 
     return str;
 }

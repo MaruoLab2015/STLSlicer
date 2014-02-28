@@ -1,4 +1,5 @@
-document.write('<script src="js/three.min.js"></script>')         //3D描画ライブラリ
+// document.write('<script src="js/three.min.js"></script>')         //3D描画ライブラリ
+document.write('<script src="js/three.js"></script>')         //3D描画ライブラリ
 document.write('<script src="js/STLLoader.js"></script>')     //STL読み込みライブラリ
 document.write('<script src="js/OrbitControls.js"></script>') // マウスでグリグリ回転プラグイン
 
@@ -8,7 +9,7 @@ var giISGeometries = [];//断面データたち
 var width, height;
 var renderer;
 /*--------------------カメラ処理-----------------------*/
-var camera;
+var camera, vecLookAt;
 var controls;
 /*--------------------シーン処理-----------------------*/
 var scene;
@@ -16,6 +17,9 @@ var scene;
 var light, ambient;
 /*--------------------オブジェクト処理-----------------------*/
 var cupe, plane, axis;
+var tileLength = 25;
+var scale_;
+if(!scale_) scale_ = 1;
 
 /*-------------------関数読み込み---------------------*/
 function threeStart(){
@@ -44,6 +48,8 @@ function rendering(){
     controls = new THREE.OrbitControls(camera, renderer.domElement);
 
     function render(){
+
+	camera.lookAt(vecLookAt);
 	requestAnimationFrame(render);
 	renderer.render(scene, camera);
 	controls.update();
@@ -54,9 +60,18 @@ function rendering(){
 /*--------------------カメラ処理-----------------------*/
 function initCamera(){
 
-    camera = new THREE.PerspectiveCamera(45, width/height, 1, 1000);
-    camera.position.set(40, 60, 100);
-    camera.lookAt(plane.position);
+    camera = new THREE.PerspectiveCamera(45, width/height, 1, 100000);
+    
+    camera.position.set(160, 160, 200);
+    vecLookAt = new THREE.Vector3();
+    
+}
+
+function adjustCamera(){
+
+    var box = giMeshSTL.geometry.boundingBox.clone();
+    
+    vecLookAt = box.center();//対象物の中心を見る  
 }
 
 
@@ -80,34 +95,21 @@ function initLight(){
 }
 
 // /*--------------------オブジェクト処理-----------------------*/
+var meshes = [];
 function initObject(){
 
+    if(axis){
+	removeInitObject();
+    }
+    
     //軸の描画
-    axis = new THREE.AxisHelper(1000);
+    axis = new THREE.AxisHelper(100);
     axis.position.set(0,0,0);
     scene.add(axis);
 
     
     //タイルの床
-    var radian = 0;//45 * 3.14 / 180;
-    for(var i=-5; i<5; i++){
-	for(var j=-5; j<5; j++){
-	    var groundColor = ((i+j)&1) == 1 ? 0x999999 : 0x333333;
-	    var mesh = new THREE.Mesh(new THREE.PlaneGeometry(25, 25), new THREE.MeshLambertMaterial({color: groundColor// ,
-												      // side:THREE.DoubleSide
-												     }));
-	    mesh.rotation.x = - 90 *Math.PI / 180;
-	    
-
-	    var x = i*25;
-	    var y = j*25;
-
-	    mesh.position.x = x*Math.cos(radian) - y*Math.sin(radian);
-	    mesh.position.z = x*Math.sin(radian) + y*Math.cos(radian);
-	    mesh.position.y = -0.05;
-	    scene.add(mesh);
-	}
-    }
+    setTile(100);
 
     //切断平面の描画 
     var pGeometry = new THREE.PlaneGeometry(300, 300);
@@ -118,7 +120,7 @@ function initObject(){
     						    transparent: true
     						  });
     plane = new THREE.Mesh(pGeometry, pMaterial);
-    plane.position.set(0, 0, 0); //ratate, scale
+    plane.position.set(100, 200, 300); //ratate, scale
     plane.rotation.x = 90 * Math.PI / 180;
     scene.add(plane);		
 
@@ -127,6 +129,67 @@ function initObject(){
     checkVisible("CutPlane");
     renderIntersection();
 }
+
+function setTile( length ){
+
+    
+    //タイルの床
+    var material = new THREE.LineBasicMaterial( { linewidth: 1, color: 0xcccccc } );
+    var NumOftiles = Math.floor(length / tileLength);
+
+    for(var i=1;i<=NumOftiles;i++){
+	var g = new THREE.Geometry();
+	var v1 = new THREE.Vector3();
+	var v2 = new THREE.Vector3();	
+	v1.x = i*tileLength;
+	v2.x = i*tileLength;
+	v2.z = length;
+	g.vertices.push(v1);
+	g.vertices.push(v2);
+	meshes.push(g);
+    }
+    for(var i=1;i<=NumOftiles;i++){
+
+	var g = new THREE.Geometry();
+	var v1 = new THREE.Vector3();
+	var v2 = new THREE.Vector3();		
+	v1.z = i*tileLength;
+	v2.z = i*tileLength;
+	v2.x = length;
+	g.vertices.push(v1);
+	g.vertices.push(v2);
+	meshes.push(g);
+    }
+
+    for (var i=0;i<meshes.length;i++){
+	scene.add( new THREE.Line( meshes[i], material));
+    }
+}
+
+function updateInitObject(){
+
+    removeInitObject();
+
+    var box = giMeshSTL.geometry.boundingBox.clone();
+    var bsize = box.max;
+    axis = new THREE.AxisHelper(bsize.length() * 2);
+    axis.position.set(0,0,0);
+    scene.add(axis);
+
+    //タイル
+    setTile(bsize.length());
+}
+
+function removeInitObject(){
+
+    scene.remove(plane);
+    scene.remove(axis);
+    for(var i=0;i<meshes.length;i++){
+	
+	scene.remove(meshes[i]);
+    }
+    meshes = [];
+};
 
 function checkVisible( mesh ){
 
@@ -322,7 +385,7 @@ function moveGeometryToCenter( geometry_){
     center = boundingBox.center();
 
     giMeshSTL.geometry.applyMatrix( new THREE.Matrix4().makeTranslation(
-    	    -center.x, -boundingBox.min.y, -center.z
+    	    -boundingBox.min.x, -boundingBox.min.y, -boundingBox.min.z
     ));
 }
 
@@ -391,8 +454,7 @@ function rotationGeometry(axis){
     translateGeometry();
 }
 
-var scale_;
-if(!scale_) scale_ = 1;
+
 function setGeometryScale(isSlider){
 
     if(!giMeshSTL) return;
@@ -419,6 +481,7 @@ function setGeometryScale(isSlider){
     	    scale_, scale_, scale_
     ));
     updateSTLSize();
+    updateInitObject();
 }
 
 function setFace3toGeometry( geometry_){

@@ -137,8 +137,9 @@ THREE.STLLoader.prototype.parseBinary = function (data) {
 
 	}
 
-	geometry.computeCentroids();
-	geometry.computeBoundingSphere();
+	// geometry.computeCentroids();
+	// geometry.computeBoundingSphere();
+        geometry.computeBoundingBox();
 
 	return geometry;
 
@@ -177,9 +178,9 @@ THREE.STLLoader.prototype.parseASCII = function (data) {
 
 	}
 
-	geometry.computeCentroids();
+	// geometry.computeCentroids();
 	geometry.computeBoundingBox();
-	geometry.computeBoundingSphere();
+	// geometry.computeBoundingSphere();
 
 	return geometry;
 

@@ -8478,6 +8478,8 @@ THREE.Geometry = function () {
 
 	this.faces = [];
 
+        this.endVertices=[];
+        this.endPoint=[];
         this.halfedges = [];
         this.faceStartPoint = [];
 
@@ -9761,6 +9763,7 @@ THREE.Camera.prototype.lookAt = function () {
 	// This routine does not support cameras with rotated and/or translated parent(s)
 
 	var m1 = new THREE.Matrix4();
+    console.log("lookat");
 
 	return function ( vector ) {
 

@@ -43,6 +43,7 @@ function onLoaded(event){
     
     THREE.HalfedgeIdCount = 0;//初期化
     initGeometries();
+    
     renderSTLModel( loader.parse(tmpData));
     document.querySelector("#msg").innerHTML = "";
     
@@ -50,9 +51,9 @@ function onLoaded(event){
     setPairHalfedges(giMeshSTL.geometry);
     updateSTLSize();
 
-    // computeLayers();
-    // computeIntersection();
-    // downloadAsHPGLFormat();
+    //視線方向
+    adjustCamera();
+    updateInitObject();
 }
 
 //ファイルの読み込み失敗

@@ -33,6 +33,7 @@ function computeLayers(){
 	    
     	    scene.remove( giISGeometries[i]);
 	}
+	giISGeometries = [];
     }
 
     //断面の表示
@@ -187,9 +188,9 @@ function recoverEndVertex( geometry_ ){
 
 function roundVector3( v ){
 
-    // v.x = Math.round(v.x);
-    // v.y = Math.round(v.y);
-    // v.z = Math.round(v.z);
+    v.x = Math.round(v.x);
+    v.y = Math.round(v.y);
+    v.z = Math.round(v.z);
     
     return v;
 }
