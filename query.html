@@ -1,7 +1,7 @@
 <!-- ▼ STAR-FORM http://star-form.com ここから ▼ -->
-<script type="text/javascript" language="javascript" src="http://star-form.com/starform3.0/jquery-1.9.0.min.js"></script>
-<script type="text/javascript" language="javascript" src="http://star-form.com/starform3.0/script.js"></script>
-<link href="http://star-form.com/starform3.0/style.css" rel="stylesheet" type="text/css" media="all" />
+<script type="text/javascript" language="javascript" src="starform3.0/jquery-1.9.0.min.js"></script>
+<script type="text/javascript" language="javascript" src="starform3.0/script.js"></script>
+<link href="starform3.0/style.css" rel="stylesheet" type="text/css" media="all" />
 <style type="text/css">
 #starform                  { width: 700px; }            /* テーブルの横幅をピクセルで指定 */
 #starform td, #starform th { border: 1px solid #aaa; }  /* テーブルの枠線のスタイルを指定 */
@@ -13,7 +13,7 @@ var starform_mailflg = "メールアドレス";
 var starform_msg = { required_text: "を入力してください。", required_check: "を選択してください。", required_select: "を選択してください。", mail: "が正しくないようです。", confirm: "送信してよいですか？" };
 </script>
 <div id="starform">
-<form action="http://star-form.com/starform3.0/send.php" method="post">
+<form action="starform3.0/send.php" method="post">
 <input type="hidden" name="from" value="" />
 <input type="hidden" name="from_name" value="" />
 <input type="hidden" name="to" value="LwN5AQRjZGINM21unJjhL29g" />
@@ -24,7 +24,8 @@ var starform_msg = { required_text: "を入力してください。", required_c
 <table>
 <tr><th>お名前</th><td><input type="text" name="values[お名前]" value="" /><span class="example">例）山田　太郎</span></td></tr>
 <tr><th>メールアドレス</th><td><input type="text" name="values[メールアドレス]" value="" /><span class="example">例）mail@example.com</span></td></tr>
-<tr><th>要望・バグ報告<span>(必須)</span></th><td><textarea name="values[ご質問内容]"></textarea></td></tr>
+<tr><th>お電話番号</th><td><input type="text" name="values[お電話番号]" value="" /><span class="example">例）03-1234-5678</span></td></tr>
+<tr><th>ご質問内容<span>(必須)</span></th><td><textarea name="values[ご質問内容]"></textarea></td></tr>
 <tr><td align="center" colspan="2"><input type="submit" value="送信" />　<input type="reset" value="リセット" /></td></tr>
 </table>
 </form>
