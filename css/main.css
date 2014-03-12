@@ -93,4 +93,53 @@ input.mvx, input.mvy, input.mvz
    margin: 0 auto 0 auto ;
 }
 
+/* オーバレイ関連 */
+#btn{
+  
+}
 
+
+
+#overlay{
+   display: none;
+   width: 100%;
+   height: 100%;
+   text-align: center;
+   position: fixed;
+   top: 0;
+   z-index: 100;
+   Background: rgba(0,0,0,0.7);
+}
+
+#overlay-popup{
+
+   width: 600px;
+   height: 180px;
+   background: #eeeeee;
+   margin: auto;
+   margin-top: 20%;
+   padding-top: 20px;
+     
+}
+
+#overlay-title{
+
+   color:#717171;
+   margin:20px;
+}
+
+
+#progressbar{
+
+   width: 80%;
+   margin: auto;
+}
+
+#overlay-close{
+
+   Background: #cccccc;
+   width: 100px;
+   margin: auto;
+   margin-top: 20px;
+   color:#717171;
+}

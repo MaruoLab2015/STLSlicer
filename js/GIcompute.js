@@ -390,6 +390,7 @@ function setNextAndPrevHalfedge(geometry_){
 
     if(!geometry_) return;
 
+    console.time("set next and prev HE");
     //全ての面に対して３つずつhalfedge作成
     for(var i=0;i<geometry_.faces.length;i++){
 
@@ -428,6 +429,7 @@ function setNextAndPrevHalfedge(geometry_){
 	geometry_.halfedges[HElength-1].setPrevHE(geoHE[HElength-2].id);
 
     }
+    console.timeEnd("set next and prev HE");
 
     return geometry_;
 }
@@ -439,6 +441,8 @@ function setPairHalfedges( geometry_ ){
     var geoHE = geometry_.halfedges;
     var v1, v2;	//比較する座標
     var time = geoHE[0].times_visit;
+
+    console.time("set pairHE");
     for(var i=0;i<geometry_.halfedges.length;i++){	
 
 
@@ -472,6 +476,7 @@ function setPairHalfedges( geometry_ ){
 	    
      	}
     }
+    console.timeEnd("set pairHE");
 
     geometry_ = resetHEUnVisit( geometry_);
 

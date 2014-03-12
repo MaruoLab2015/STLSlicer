@@ -11,8 +11,7 @@
     <script type="text/javascript" src="js/jquery-1.10.2.js"></script>
     <script type="text/javascript" src="js/jquery-ui-1.10.4.custom.min.js"></script>
 
-    <script type="text/javascript" src="js/jquery.droppy.js"></script>
-    
+    <script type="text/javascript" src="js/jquery.droppy.js"></script>    
     
     <link rel="stylesheet" href="css/main.css" type="text/css" />
     <link rel="stylesheet" href="css/ui-lightness/jquery-ui-1.10.4.custom.css" />
@@ -71,12 +70,32 @@
         giIsBinary = true;
         $('input#file').click();
       });
-    
+
+      <!-- $(function(){ -->
+        $("#btn").click(function(){
+          $("#overlay").fadeIn("fast");
+        });
+        $("#overlay-close").click(function(){
+          //location.reload();
+          $("#overlay").fadeOut();
+        });
+      <!-- }); -->
       });
     </script>
   </head>
   
   <body onload="threeStart();culcCutPlane();">
+
+
+
+    <!-- オーバーレイ -->
+    <div id="overlay">
+      <div id="overlay-popup">	
+	<p id="overlay-title">STLファイル読み込み中...</p>
+	<div id="progressbar"></div>     	
+	<p id="overlay-close">キャンセル</p>
+      </div>
+    </div>
 
     <div id="contents">
       <header>
@@ -131,6 +150,9 @@
 
 	  vertices：<input type="text" id="numVertex" value="0" readonly/>
 	  faces：<input type="text" id="numFace" value="0" readonly/>
+	</div>
+	<div id="model-info">
+	  1光子：100→10μm  2光子：100→100nm
 	</div>
       </div>
       <div id="side-bar" float="true">
@@ -191,7 +213,7 @@
 	    <input class="culc" type="button" name="culc" value="複数層の計算" onClick="computeLayers();"/>
 	    積層ピッチ:<input type="text" id="pitch" value="5" onChange="" style="width:30px" />
 	    
-	    <!-- <div id="progressbar" style="width:200px"></div> -->
+
 	    <hr />
 	    <input type="file" id="file" accept="application/sla" maxlength="1" onchange="dochange(event);" style="display:none" />
 	    <div class="normalVector">

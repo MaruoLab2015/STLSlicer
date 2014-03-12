@@ -23,7 +23,6 @@
  * 	loader.load( './models/stl/slotted_disk.stl' );
  */
 
-
 THREE.STLLoader = function () {};
 
 THREE.STLLoader.prototype = {
@@ -94,24 +93,40 @@ THREE.STLLoader.prototype.parse = function (data) {
 
 	var binData = this.ensureBinary( data );
 
-	return isBinary()
+	return loadSTLVertices(
+	    isBinary()
 		? this.parseBinary( binData )
-		: this.parseASCII( this.ensureString( data ) );
+		: this.parseASCII( this.ensureString( data ) )
+	    );
 
 };
 
 THREE.STLLoader.prototype.parseBinary = function (data) {
 
+
 	var face, geometry, n_faces, reader, length, normal, i, dataOffset, faceLength, start, vertexstart;
 
 	reader = new DataView( data );
 	n_faces = reader.getUint32(80,true);
+        console.log("n_face:"+n_faces);
 	geometry = new THREE.Geometry();
 	dataOffset = 84;
 	faceLength = 12 * 4 + 2;
 
+    console.time("binary time");
+
+        // プログレスバー無し
 	for (face = 0; face < n_faces; face++) {
 
+	    
+	    	if(face % 200 == 0){
+	    	    $(function(){
+	    		$("#progressbar").progressbar({
+	    	    	    value: Math.floor(face / n_faces * 100)
+	    		});
+	    	    });
+	    	}
+	    
 		start = dataOffset + face * faceLength;
 		normal = new THREE.Vector3(
 			reader.getFloat32(start,true),
@@ -137,52 +152,72 @@ THREE.STLLoader.prototype.parseBinary = function (data) {
 
 	}
 
-	// geometry.computeCentroids();
-	// geometry.computeBoundingSphere();
         geometry.computeBoundingBox();
 
-	return geometry;
+    console.timeEnd("binary time");
+    return geometry;
+	// return loadSTLVertices( geometry );
 
 };
 
 THREE.STLLoader.prototype.parseASCII = function (data) {
 
+
 	var geometry, length, normal, patternFace, patternNormal, patternVertex, result, text, halfedge;
 	geometry = new THREE.Geometry();
 	patternFace = /facet([\s\S]*?)endfacet/g;
 
-	while (((result = patternFace.exec(data)) != null)) {
+    //プログレスバー有り
+    //数を数える
+    var num = 0;
+    var regObj = new RegExp("endfacet", "g");
+    var numResult = data.match(regObj);
+    
 
-		text = result[0];
-		patternNormal = /normal[\s]+([\-+]?[0-9]+\.?[0-9]*([eE][\-+]?[0-9]+)?)+[\s]+([\-+]?[0-9]*\.?[0-9]+([eE][\-+]?[0-9]+)?)+[\s]+([\-+]?[0-9]*\.?[0-9]+([eE][\-+]?[0-9]+)?)+/g;
+    console.time("read time");
 
-		while (((result = patternNormal.exec(text)) != null)) {
+        //プログレスバー無し
+    	while (((result = patternFace.exec(data)) != null)) {
 
-			normal = new THREE.Vector3(parseFloat(result[1]), parseFloat(result[3]), parseFloat(result[5]));
+	    // num++;
+    	    // // console.log(Math.round(num++/numResult.length * 100));
+	    if(num % 200 == 0){
+    	    	$(function(){
+    	    	    $("#progressbar").progressbar({
+    	    		value: Math.floor(num++ / numResult.length * 100)
+    	    	    });
+    	    	});
+	    }
 
-		}
+    		text = result[0];
+    		patternNormal = /normal[\s]+([\-+]?[0-9]+\.?[0-9]*([eE][\-+]?[0-9]+)?)+[\s]+([\-+]?[0-9]*\.?[0-9]+([eE][\-+]?[0-9]+)?)+[\s]+([\-+]?[0-9]*\.?[0-9]+([eE][\-+]?[0-9]+)?)+/g;
 
-		patternVertex = /vertex[\s]+([\-+]?[0-9]+\.?[0-9]*([eE][\-+]?[0-9]+)?)+[\s]+([\-+]?[0-9]*\.?[0-9]+([eE][\-+]?[0-9]+)?)+[\s]+([\-+]?[0-9]*\.?[0-9]+([eE][\-+]?[0-9]+)?)+/g;
+    		while (((result = patternNormal.exec(text)) != null)) {
 
-		while (((result = patternVertex.exec(text)) != null)) {
+    			normal = new THREE.Vector3(parseFloat(result[1]), parseFloat(result[3]), parseFloat(result[5]));
 
-			geometry.vertices.push(new THREE.Vector3(parseFloat(result[1]), parseFloat(result[3]), parseFloat(result[5])));
+    		}
 
-		}
+    		patternVertex = /vertex[\s]+([\-+]?[0-9]+\.?[0-9]*([eE][\-+]?[0-9]+)?)+[\s]+([\-+]?[0-9]*\.?[0-9]+([eE][\-+]?[0-9]+)?)+[\s]+([\-+]?[0-9]*\.?[0-9]+([eE][\-+]?[0-9]+)?)+/g;
+
+    		while (((result = patternVertex.exec(text)) != null)) {
+
+    			geometry.vertices.push(new THREE.Vector3(parseFloat(result[1]), parseFloat(result[3]), parseFloat(result[5])));
+
+    		}
 
 	    
-		length = geometry.vertices.length;
-	        var aFace = new THREE.Face3(length - 3, length - 2, length -1, normal);
-		geometry.faces.push( aFace);
+    		length = geometry.vertices.length;
+    	        var aFace = new THREE.Face3(length - 3, length - 2, length -1, normal);
+    		geometry.faces.push( aFace);
 
 
-	}
+    	}
 
-	// geometry.computeCentroids();
-	geometry.computeBoundingBox();
-	// geometry.computeBoundingSphere();
-
-	return geometry;
+    console.timeEnd("read time");
+    geometry.computeBoundingBox();
+    return geometry; // loadSTLVertices(geometry);
+    
 
 };
 
