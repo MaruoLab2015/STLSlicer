@@ -12,7 +12,7 @@ header
    Background-color :  #e78f08;
    color: #ffffff;
    padding-left: 10px;
-   width: 980px;
+   width: 970px;
 }
 #graphicArea{
    float: left;
@@ -142,4 +142,15 @@ input.mvx, input.mvy, input.mvz
    margin: auto;
    margin-top: 20px;
    color:#717171;
+}
+
+/* お問い合わせフォーム */
+#query{
+   font-size: 7px;
+   width: 980px;
+   margin: 0 auto 0 auto;
+}
+
+#query a{
+   float: right;
 }
