@@ -447,12 +447,14 @@ function setPairHalfedges( geometry_ ){
 
 
     	// if(geoHE[i].times_visit > time) continue;//一度結びつけたHEはスキップ
-    	if(!geoHE[i].unVisited) continue;//一度結びつけたHEはスキップ
+	if(geoHE[i].pair_id) continue;
+    	// if(!geoHE[i].unVisited) continue;//一度結びつけたHEはスキップ
      	v1 = geoHE[i].vertex;
 
      	for(var j=0;j<geoHE.length;j++){
 
      	    if(i==j) continue;//同じ要素はスキップ
+	    // if(geoHE[j].pair_id) continue;//一度結びつけたHEはスキップ
 
      	    v2 = geoHE[j].vertex;
      	    if(isEqualVector3( v1, v2)){
