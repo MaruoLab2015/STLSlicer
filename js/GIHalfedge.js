@@ -1,8 +1,9 @@
 THREE.HalfedgeIdCount = 0;
-THREE.Halfedge = function( next_id, prev_id, pair_id){
+THREE.Halfedge = function( next_id, prev_id, pair_id, vertex_id){
 
     this.id          = THREE.HalfedgeIdCount++;
     this.vertex      = new THREE.Vector3();
+    this.vertex_id   = vertex_id || -1;
     this.next_id     = next_id || 0;
     this.prev_id     = prev_id || 0;
     this.pair_id     = pair_id || 0;

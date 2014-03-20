@@ -403,12 +403,18 @@ function setNextAndPrevHalfedge(geometry_){
 	    switch(j){
 	    case 0:
 		halfedge.vertex = geometry_.vertices[aFace.a];
+		halfedge.vertex_id = aFace.a;
+		
+		// console.log(halfedge.vertex);
+		// console.log(geometry_.vertices[halfedge.vertex_id]);
 		break;
 	    case 1:
 		halfedge.vertex = geometry_.vertices[aFace.b];
+		halfedge.vertex_id = aFace.b;
 		break;
 	    case 2:
 		halfedge.vertex = geometry_.vertices[aFace.c];
+		halfedge.vertex_id = aFace.c;
 		break;
 	    }
 
@@ -445,42 +451,38 @@ function setPairHalfedges( geometry_ ){
     console.time("set pairHE");
     for(var i=0;i<geometry_.halfedges.length;i++){	
 
+	if(!geoHE[i].unVisited) continue;
+	
+	v1 = geometry_.vertices[geoHE[i].vertex_id];
 
-    	// if(geoHE[i].times_visit > time) continue;//一度結びつけたHEはスキップ
-	if(geoHE[i].pair_id) continue;
-    	// if(!geoHE[i].unVisited) continue;//一度結びつけたHEはスキップ
-     	v1 = geoHE[i].vertex;
+     	for(var j=i+1;j<geoHE.length;j++){//重複は避ける→j=i+1
 
-     	for(var j=0;j<geoHE.length;j++){
+	    v2 = geometry_.vertices[geoHE[j].vertex_id];
 
-     	    if(i==j) continue;//同じ要素はスキップ
-	    // if(geoHE[j].pair_id) continue;//一度結びつけたHEはスキップ
-
-     	    v2 = geoHE[j].vertex;
-     	    if(isEqualVector3( v1, v2)){
+	    if(v1 == v2){
 
     		var HE1, HE2;
     		var v3, v4;
     		HE1 = geoHE[geoHE[i].next_id], HE2 = geoHE[geoHE[j].prev_id];
     		v3 = HE1.vertex; v4 = HE2.vertex;
-    		if(isEqualVector3(v3, v4)){
+
+		v3 = geometry_.vertices[HE1.vertex_id];
+		v4 = geometry_.vertices[HE2.vertex_id];
+
+		if(v3 == v4){
     		    geometry_.halfedges[i].pair_id = geoHE[j].prev_id;
     		    geometry_.halfedges[geoHE[j].prev_id].pair_id = i;
-    		    geoHE[i].unVisited = false;
-    		    geoHE[geoHE[j].prev_id].unVisited = false;
-    		    // geoHE[i].times_visit++;
-    		    // geoHE[geoHE[j].prev_id].times_visit++;
-		    
 
-    		    // console.log("i->" + i + ", j->" + j + ", i->" + geoHE[j].prev_id + ", pair->" + i);
+		    
+    		    // geoHE[i].unVisited = false;
+    		    geoHE[geoHE[j].prev_id].unVisited = false;
+		    break;
     		}
      	    }
 	    
      	}
     }
     console.timeEnd("set pairHE");
-
-    geometry_ = resetHEUnVisit( geometry_);
 
     return geometry_;
 }

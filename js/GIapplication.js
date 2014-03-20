@@ -57,6 +57,8 @@ function onLoaded(event){
 
 function loadSTLVertices( geometry_ ){
 
+    geometry_.mergeVertices();
+    
     var callbacks = $.Callbacks();
     callbacks.add( $("#overlay-title").html("STLデータの描画中..."));
     callbacks.add(  renderSTLModel( geometry_ ));
