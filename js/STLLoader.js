@@ -79,6 +79,8 @@ THREE.STLLoader.prototype.load = function (url, callback) {
 
 THREE.STLLoader.prototype.parse = function (data) {
 
+        console.time("parse time");
+
 
 	var isBinary = function () {
 
@@ -93,12 +95,13 @@ THREE.STLLoader.prototype.parse = function (data) {
 
 	var binData = this.ensureBinary( data );
 
+ 
 	return loadSTLVertices(
 	    isBinary()
 		? this.parseBinary( binData )
 		: this.parseASCII( this.ensureString( data ) )
 	    );
-
+    
 };
 
 THREE.STLLoader.prototype.parseBinary = function (data) {
@@ -113,7 +116,6 @@ THREE.STLLoader.prototype.parseBinary = function (data) {
 	dataOffset = 84;
 	faceLength = 12 * 4 + 2;
 
-    console.time("binary time");
 
         // プログレスバー無し
 	for (face = 0; face < n_faces; face++) {
@@ -154,7 +156,8 @@ THREE.STLLoader.prototype.parseBinary = function (data) {
 
         geometry.computeBoundingBox();
 
-    console.timeEnd("binary time");
+        console.timeEnd("parse time");
+
     return geometry;
 	// return loadSTLVertices( geometry );
 
@@ -172,9 +175,7 @@ THREE.STLLoader.prototype.parseASCII = function (data) {
     var num = 0;
     var regObj = new RegExp("endfacet", "g");
     var numResult = data.match(regObj);
-    
-
-    console.time("read time");
+    console.log("face_n:"+numResult.length);
 
         //プログレスバー無し
     	while (((result = patternFace.exec(data)) != null)) {
@@ -214,8 +215,10 @@ THREE.STLLoader.prototype.parseASCII = function (data) {
 
     	}
 
-    console.timeEnd("read time");
     geometry.computeBoundingBox();
+
+        console.timeEnd("parse time");
+    
     return geometry; // loadSTLVertices(geometry);
     
 

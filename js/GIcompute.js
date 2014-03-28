@@ -447,10 +447,14 @@ function setPairHalfedges( geometry_ ){
     var geoHE = geometry_.halfedges;
     var v1, v2;	//比較する座標
     var time = geoHE[0].times_visit;
+    var syorisuu = 0;
+
+    console.log("pairHE:"+geoHE.length);
 
     console.time("set pairHE");
     for(var i=0;i<geometry_.halfedges.length;i++){	
 
+	
 	if(!geoHE[i].unVisited) continue;
 	
 	v1 = geometry_.vertices[geoHE[i].vertex_id];
@@ -478,11 +482,14 @@ function setPairHalfedges( geometry_ ){
     		    geoHE[geoHE[j].prev_id].unVisited = false;
 		    break;
     		}
+		syorisuu++;
+
      	    }
 	    
      	}
     }
     console.timeEnd("set pairHE");
+    console.log("処理数:"+syorisuu);
 
     return geometry_;
 }

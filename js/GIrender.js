@@ -1,5 +1,5 @@
 // document.write('<script src="js/three.min.js"></script>')         //3D描画ライブラリ
-document.write('<script src="js/three.min.js"></script>')         //3D描画ライブラリ
+document.write('<script src="js/three.js"></script>')         //3D描画ライブラリ
 document.write('<script src="js/STLLoader.js" version="1.7"></script>')     //STL読み込みライブラリ
 document.write('<script src="js/OrbitControls.js"></script>') // マウスでグリグリ回転プラグイン
 
