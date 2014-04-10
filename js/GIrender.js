@@ -17,6 +17,7 @@ var scene;
 var light, ambient;
 /*--------------------オブジェクト処理-----------------------*/
 var cupe, plane, axis;
+var tileLines = [];
 var tileLength = 25;
 var scale_;
 if(!scale_) scale_ = 1;
@@ -60,18 +61,18 @@ function rendering(){
 /*--------------------カメラ処理-----------------------*/
 function initCamera(){
 
-    camera = new THREE.PerspectiveCamera(45, width/height, 1, 100000);
-    
+    camera = new THREE.PerspectiveCamera(45, width/height, 1, 1000000);    
     camera.position.set(160, 160, 200);
     vecLookAt = new THREE.Vector3();
     
 }
 
-function adjustCamera(){
+function adjustCamera( box ){
 
-    var box = giMeshSTL.geometry.boundingBox.clone();
+    vecLookAt = box.center();//対象物の中心を見る
+    var camPosition = box.max.length() * 2;
+    camera.position.set(camPosition, camPosition, camPosition);
     
-    vecLookAt = box.center();//対象物の中心を見る  
 }
 
 
@@ -135,6 +136,7 @@ function setTile( length ){
     
     //タイルの床
     var material = new THREE.LineBasicMaterial( { linewidth: 1, color: 0xcccccc } );
+    tileLength = length / 5;
     var NumOftiles = Math.floor(length / tileLength);
 
     for(var i=1;i<=NumOftiles;i++){
@@ -162,9 +164,25 @@ function setTile( length ){
     }
 
     for (var i=0;i<meshes.length;i++){
-	scene.add( new THREE.Line( meshes[i], material));
+	var aLine = new THREE.Line( meshes[i], material);
+	scene.add( aLine );
+	tileLines.push( aLine );
     }
+
 }
+
+function removeInitObject(){
+
+    scene.remove(plane);
+    scene.remove(axis);
+
+    //タイルの削除
+    for(var i=0;i<tileLines.length;i++){
+	
+	scene.remove(tileLines[i]);
+    }
+    meshes = [];
+};
 
 function updateInitObject(){
 
@@ -172,24 +190,18 @@ function updateInitObject(){
 
     var box = giMeshSTL.geometry.boundingBox.clone();
     var bsize = box.max;
+
+    //軸の再描画
     axis = new THREE.AxisHelper(bsize.length() * 2);
     axis.position.set(0,0,0);
     scene.add(axis);
 
-    //タイル
+    //タイルの描画
     setTile(bsize.length());
+
+    //カメラの設定(位置・視野)
+    adjustCamera( box );
 }
-
-function removeInitObject(){
-
-    scene.remove(plane);
-    scene.remove(axis);
-    for(var i=0;i<meshes.length;i++){
-	
-	scene.remove(meshes[i]);
-    }
-    meshes = [];
-};
 
 function checkVisible( mesh ){
 

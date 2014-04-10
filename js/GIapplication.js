@@ -69,7 +69,7 @@ function loadSTLVertices( geometry_ ){
     callbacks.add( $("#overlay-title").html("STLの情報を取得中..."));
     callbacks.add( updateSTLSize());
     callbacks.add( $("#overlay-title").html("カメラの移動・平面軸の更新中..."));   
-    callbacks.add( [adjustCamera(), updateInitObject()]);
+    callbacks.add( [adjustCamera( geometry_.boundingBox.clone()), updateInitObject()]);
     callbacks.add( $("#overlay").fadeOut());
     callbacks.fire();
     
