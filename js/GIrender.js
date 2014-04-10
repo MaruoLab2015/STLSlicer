@@ -50,7 +50,7 @@ function rendering(){
 
     function render(){
 
-	camera.lookAt(vecLookAt);
+	// camera.lookAt(vecLookAt);
 	requestAnimationFrame(render);
 	renderer.render(scene, camera);
 	controls.update();
@@ -133,31 +133,33 @@ function initObject(){
 
 function setTile( length ){
 
-    
+    length *= 2;
     //タイルの床
     var material = new THREE.LineBasicMaterial( { linewidth: 1, color: 0xcccccc } );
-    tileLength = length / 5;
+    tileLength = length  / 5;
     var NumOftiles = Math.floor(length / tileLength);
 
-    for(var i=1;i<=NumOftiles;i++){
+    for(var i=0;i<=NumOftiles;i++){
 	var g = new THREE.Geometry();
 	var v1 = new THREE.Vector3();
 	var v2 = new THREE.Vector3();	
-	v1.x = i*tileLength;
-	v2.x = i*tileLength;
-	v2.z = length;
+	v1.x = i*tileLength - tileLength * NumOftiles/2.0;
+	v1.z = - length + tileLength * NumOftiles/2.0;
+	v2.x = i*tileLength - tileLength * NumOftiles/2.0;
+	v2.z = length - tileLength * NumOftiles/2.0;
 	g.vertices.push(v1);
 	g.vertices.push(v2);
 	meshes.push(g);
     }
-    for(var i=1;i<=NumOftiles;i++){
+    for(var i=0;i<=NumOftiles;i++){
 
 	var g = new THREE.Geometry();
 	var v1 = new THREE.Vector3();
 	var v2 = new THREE.Vector3();		
-	v1.z = i*tileLength;
-	v2.z = i*tileLength;
-	v2.x = length;
+	v1.z = i*tileLength - tileLength * NumOftiles/2.0;
+	v1.x = -length + tileLength * NumOftiles/2.0;
+	v2.z = i*tileLength - tileLength * NumOftiles/2.0;
+	v2.x = length - tileLength * NumOftiles/2.0;
 	g.vertices.push(v1);
 	g.vertices.push(v2);
 	meshes.push(g);
@@ -395,9 +397,15 @@ function moveGeometryToCenter( geometry_){
     //移動量の変数の良い名前が思いつかない。。。
     var center = new THREE.Vector3;
     center = boundingBox.center();
+    
+    //端を原点に合わせる
+    // giMeshSTL.geometry.applyMatrix( new THREE.Matrix4().makeTranslation(
+    // 	    -boundingBox.min.x, -boundingBox.min.y, -boundingBox.min.z
+    // ));
 
+    //モデルの中心を真ん中に合わせる
     giMeshSTL.geometry.applyMatrix( new THREE.Matrix4().makeTranslation(
-    	    -boundingBox.min.x, -boundingBox.min.y, -boundingBox.min.z
+    	    -center.x, -boundingBox.min.y, -center.z
     ));
 }
 
