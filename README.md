@@ -19,9 +19,9 @@ It is available to export csv or hpgl file format from the cross section.
 ![](./gif/transform.gif)
 
 ###4. Set cutting layer pitch and start to compute the cross section
-###5. Save cross section as .csv or .hpgl
+###5. Save the cross section as .csv or .hpgl
 
-![](./git/computeCrossSection.gif)
+![](./gif/computeCrossSection.gif)
 
 ##Licence and Author
 MIT@[wakusei-meron-](http:github.com/wakusei-meron-) 
